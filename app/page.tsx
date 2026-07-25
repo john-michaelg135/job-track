@@ -64,9 +64,7 @@ export default function Home() {
             className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]"
             style={{ color: "rgb(var(--color-on-surface))" }}
           >
-            Track every applications. 
-            <br />
-            <span style={{ color: "rgb(var(--color-primary))" }}>Land the role.</span>
+            Track every application. <span style={{ color: "rgb(var(--color-primary))" }}>Land the role.</span>
           </motion.h1>
 
           <motion.p
@@ -126,6 +124,7 @@ export default function Home() {
               whileHover={{ y: -4, scale: 1.02 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className="p-6 rounded-[var(--radius-xl)] border transition-shadow duration-300 hover:shadow-lg"
+              data-cursor-morph
               style={{
                 background: "rgb(var(--color-surface-container))",
                 borderColor: "rgb(var(--color-outline-variant))",
