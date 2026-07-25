@@ -1,17 +1,27 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 /**
- * Listens for Supabase auth state changes (email confirmation hash fragment).
- * Redirects to confirmed page on first sign-in from email confirmation,
- * or dashboard if already authenticated and navigating.
+ * Listens for Supabase auth state changes.
+ * 
+ * Key behavior:
+ * - If SIGNED_IN fires and there's a hash fragment (email confirmation implicit flow),
+ *   redirect to /auth/confirmed
+ * - If SIGNED_IN fires on login page (manual login), redirect to /dashboard
+ * - If already on dashboard or confirmed page, do nothing
  */
 export function AuthListener() {
   const router = useRouter();
   const pathname = usePathname();
+  const hasHandled = useRef(false);
+
+  useEffect(() => {
+    // Reset on pathname change
+    hasHandled.current = false;
+  }, [pathname]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -19,18 +29,28 @@ export function AuthListener() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
-      // Only redirect from public pages (landing, login, signup)
-      const isPublicPage = pathname === "/" || pathname === "/login" || pathname === "/signup";
+      if (event !== "SIGNED_IN" || hasHandled.current) return;
 
-      if (event === "SIGNED_IN" && isPublicPage) {
-        // If on signup page, likely coming from email confirmation hash
-        if (pathname === "/signup" || pathname === "/") {
-          router.push("/auth/confirmed");
-        } else {
-          router.push("/dashboard");
-        }
-        router.refresh();
+      // Don't redirect if already on authenticated pages
+      if (pathname.startsWith("/dashboard") || pathname.startsWith("/auth/confirmed")) {
+        return;
       }
+
+      hasHandled.current = true;
+
+      // Check if this came from an email confirmation (URL has hash with access_token)
+      const hash = window.location.hash;
+      const isEmailConfirmation = hash.includes("access_token") && hash.includes("type=signup");
+
+      if (isEmailConfirmation || pathname === "/signup" || pathname === "/") {
+        // Email confirmation flow — show confirmed page
+        router.push("/auth/confirmed");
+      } else if (pathname === "/login") {
+        // Manual login — go to dashboard
+        router.push("/dashboard");
+      }
+
+      router.refresh();
     });
 
     return () => {

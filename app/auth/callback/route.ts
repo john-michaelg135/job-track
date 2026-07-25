@@ -10,32 +10,37 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get("next");
 
   const redirectTo = request.nextUrl.clone();
+  redirectTo.search = "";
 
+  // Email verification (PKCE token_hash)
   if (token_hash && type) {
     const supabase = await createClient();
     const { error } = await supabase.auth.verifyOtp({ type, token_hash });
     if (!error) {
-      // Show the confirmation success page
       redirectTo.pathname = "/auth/confirmed";
-      redirectTo.search = "";
       return NextResponse.redirect(redirectTo);
     }
+    redirectTo.pathname = "/login";
+    redirectTo.searchParams.set("error", "Verification failed or link expired.");
+    return NextResponse.redirect(redirectTo);
   }
 
+  // OAuth / magic link code exchange
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       redirectTo.pathname = next || "/dashboard";
-      redirectTo.search = "";
       return NextResponse.redirect(redirectTo);
     }
+    redirectTo.pathname = "/login";
+    redirectTo.searchParams.set("error", "Authentication failed.");
+    return NextResponse.redirect(redirectTo);
   }
 
-  // If no params or verification succeeded via Supabase's default flow
-  // (token already verified on their end, just redirecting back)
-  // Show the confirmed page
+  // No params — this happens with Supabase's default implicit flow.
+  // The token was already verified on Supabase's server, user is now authenticated.
+  // Always show the confirmed page.
   redirectTo.pathname = "/auth/confirmed";
-  redirectTo.search = "";
   return NextResponse.redirect(redirectTo);
 }
