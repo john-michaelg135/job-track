@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "@/lib/theme";
 import { motion, AnimatePresence } from "motion/react";
@@ -51,12 +52,13 @@ export function DashboardNav({ email }: { email: string }) {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          <span
-            className="hidden sm:inline text-xs truncate max-w-[160px] px-3 py-1.5 rounded-[var(--radius-full)]"
-            style={{ background: "rgb(var(--color-surface-container))", color: "rgb(var(--color-on-surface-variant))" }}
+          <Link
+            href="/dashboard/account"
+            className="hidden sm:inline text-xs truncate max-w-[160px] px-3 py-1.5 rounded-[var(--radius-full)] transition-all duration-200 hover:scale-105"
+            style={{ background: "rgb(var(--color-surface-container))", color: "rgb(var(--color-primary))" }}
           >
             {email}
-          </span>
+          </Link>
 
           {/* Theme toggle */}
           <motion.button
