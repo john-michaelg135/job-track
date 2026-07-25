@@ -29,6 +29,7 @@ export function DashboardNav({ email }: { email: string }) {
   }
 
   return (
+    <>
     <header
       className="sticky top-0 z-20 border-b backdrop-blur-xl"
       style={{
@@ -142,10 +143,11 @@ export function DashboardNav({ email }: { email: string }) {
           </motion.button>
         </div>
       </div>
+    </header>
 
-      {/* Logout confirmation */}
+      {/* Logout confirmation — rendered outside header for proper centering */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
           <div
             className="fixed inset-0 animate-[fadeIn_150ms_ease-out]"
             style={{ background: "rgba(0, 0, 0, 0.4)" }}
@@ -183,6 +185,6 @@ export function DashboardNav({ email }: { email: string }) {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }

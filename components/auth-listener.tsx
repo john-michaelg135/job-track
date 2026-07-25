@@ -42,15 +42,15 @@ export function AuthListener() {
       const hash = window.location.hash;
       const isEmailConfirmation = hash.includes("access_token") && hash.includes("type=signup");
 
-      if (isEmailConfirmation || pathname === "/signup" || pathname === "/") {
-        // Email confirmation flow — show confirmed page
-        router.push("/auth/confirmed");
+      if (isEmailConfirmation || pathname === "/signup") {
+        // Email confirmation flow — show confirmed page, don't refresh
+        router.replace("/auth/confirmed");
       } else if (pathname === "/login") {
         // Manual login — go to dashboard
         router.push("/dashboard");
+        router.refresh();
       }
-
-      router.refresh();
+      // If on "/" without hash tokens (e.g. session restore), do nothing
     });
 
     return () => {
