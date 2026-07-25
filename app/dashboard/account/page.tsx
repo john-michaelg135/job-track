@@ -14,8 +14,6 @@ export default function AccountPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [resetLoading, setResetLoading] = useState(false);
-  const [resetSent, setResetSent] = useState(false);
   const [email, setEmail] = useState("");
   const [mounted, setMounted] = useState(false);
 
@@ -77,24 +75,6 @@ export default function AccountPage() {
     }
 
     setLoading(false);
-  }
-
-  async function handleResetPassword() {
-    setResetLoading(true);
-    setMessage(null);
-
-    const supabase = createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/dashboard/account`,
-    });
-
-    if (error) {
-      setMessage({ type: "error", text: error.message });
-    } else {
-      setResetSent(true);
-    }
-
-    setResetLoading(false);
   }
 
   if (!mounted) return null;
@@ -228,31 +208,6 @@ export default function AccountPage() {
       </div>
 
       {/* Forgot password / reset */}
-      <div
-        className="p-5 rounded-[var(--radius-xl)] border"
-        style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))" }}
-      >
-        <h2 className="font-semibold mb-2" style={{ color: "rgb(var(--color-on-surface))" }}>Forgot your password?</h2>
-        <p className="text-sm mb-4" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
-          We&apos;ll send a password reset link to <strong>{email}</strong>.
-        </p>
-
-        {resetSent ? (
-          <div className="flex items-center gap-2 text-sm" style={{ color: "rgb(var(--color-success))" }}>
-            <CheckCircle size={18} weight="bold" />
-            Reset email sent. Check your inbox.
-          </div>
-        ) : (
-          <button
-            onClick={handleResetPassword}
-            disabled={resetLoading}
-            className="px-5 py-2.5 rounded-[var(--radius-full)] font-medium text-sm border transition-transform duration-150 active:scale-95 disabled:opacity-50"
-            style={{ borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
-          >
-            {resetLoading ? "Sending..." : "Send reset email"}
-          </button>
-        )}
-      </div>
     </div>
   );
 }
