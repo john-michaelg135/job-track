@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { Plus, PencilSimple, Trash, ArrowSquareOut, FunnelSimple, Briefcase } from "@phosphor-icons/react";
 import type { Application, ApplicationStatus } from "@/lib/types";
 import { StatusBadge } from "./status-badge";
@@ -124,17 +124,13 @@ export function ApplicationList({ applications }: ApplicationListProps) {
         </motion.div>
       ) : (
         <div className="space-y-3">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((app, i) => (
+            {filtered.map((app) => (
               <motion.div
                 key={app.id}
-                layout
-                initial={{ opacity: 0, y: 20, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                transition={{ type: "spring", stiffness: 400, damping: 30, delay: i * 0.03 }}
-                whileHover={{ y: -2 }}
-                className="p-4 sm:p-5 rounded-[var(--radius-xl)] border transition-shadow duration-300 hover:shadow-md"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                className="p-4 sm:p-5 rounded-[var(--radius-xl)] border transition-shadow duration-200 hover:shadow-md"
                 data-cursor-morph
                 style={{
                   background: "rgb(var(--color-surface-container))",
@@ -174,38 +170,31 @@ export function ApplicationList({ applications }: ApplicationListProps) {
                   </div>
 
                   <div className="flex items-center gap-1 shrink-0">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                    <button
                       onClick={() => handleEdit(app)}
-                      className="p-2 rounded-[var(--radius-full)] transition-colors duration-200"
+                      className="p-2 rounded-[var(--radius-full)] transition-transform duration-150 hover:scale-110 active:scale-90"
                       style={{ color: "rgb(var(--color-on-surface-variant))" }}
                       title="Edit"
                     >
                       <PencilSimple size={18} weight="bold" />
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                    </button>
+                    <button
                       onClick={() => handleDelete(app.id)}
-                      className="p-2 rounded-[var(--radius-full)] transition-colors duration-200"
+                      className="p-2 rounded-[var(--radius-full)] transition-transform duration-150 hover:scale-110 active:scale-90"
                       style={{ color: "rgb(var(--color-error))" }}
                       title="Delete"
                     >
                       <Trash size={18} weight="bold" />
-                    </motion.button>
+                    </button>
                   </div>
                 </div>
               </motion.div>
             ))}
-          </AnimatePresence>
         </div>
       )}
 
       {/* Form Modal */}
-      <AnimatePresence>
-        {showForm && <ApplicationForm application={editing} onClose={handleClose} />}
-      </AnimatePresence>
+      {showForm && <ApplicationForm application={editing} onClose={handleClose} />}
     </>
   );
 }

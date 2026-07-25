@@ -64,7 +64,7 @@ export default function Home() {
             className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]"
             style={{ color: "rgb(var(--color-on-surface))" }}
           >
-            Track every applications.
+            Track every applications. 
             <br />
             <span style={{ color: "rgb(var(--color-primary))" }}>Land the role.</span>
           </motion.h1>

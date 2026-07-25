@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { motion, useMotionValue, useSpring } from "motion/react";
 
 /**
- * Floating gradient orbs that animate continuously in the background.
+ * Floating gradient orbs — GPU-safe background animation.
  */
 export function BackgroundOrbs() {
   return (
@@ -20,15 +20,7 @@ export function BackgroundOrbs() {
         }}
         transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
         className="absolute rounded-full"
-        style={{
-          top: "-100px",
-          left: "-100px",
-          width: "500px",
-          height: "500px",
-          opacity: 0.15,
-          background: "radial-gradient(circle, rgb(var(--color-primary)), transparent 70%)",
-          willChange: "transform",
-        }}
+        style={{ top: "-100px", left: "-100px", width: "500px", height: "500px", opacity: 0.15, background: "radial-gradient(circle, rgb(var(--color-primary)), transparent 70%)", willChange: "transform" }}
       />
       <motion.div
         animate={{
@@ -38,15 +30,7 @@ export function BackgroundOrbs() {
         }}
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 3 }}
         className="absolute rounded-full"
-        style={{
-          top: "30%",
-          right: "-80px",
-          width: "400px",
-          height: "400px",
-          opacity: 0.1,
-          background: "radial-gradient(circle, rgb(var(--color-tertiary)), transparent 70%)",
-          willChange: "transform",
-        }}
+        style={{ top: "30%", right: "-80px", width: "400px", height: "400px", opacity: 0.1, background: "radial-gradient(circle, rgb(var(--color-tertiary)), transparent 70%)", willChange: "transform" }}
       />
       <motion.div
         animate={{
@@ -56,72 +40,43 @@ export function BackgroundOrbs() {
         }}
         transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 7 }}
         className="absolute rounded-full"
-        style={{
-          bottom: "10%",
-          left: "20%",
-          width: "350px",
-          height: "350px",
-          opacity: 0.12,
-          background: "radial-gradient(circle, rgb(var(--color-secondary)), transparent 70%)",
-          willChange: "transform",
-        }}
-      />
-      <motion.div
-        animate={{
-          x: [0, -70, 50, -40, 0],
-          y: [0, 40, -50, 70, 0],
-          scale: [1, 1.05, 0.9, 1.1, 1],
-        }}
-        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 10 }}
-        className="absolute rounded-full"
-        style={{
-          top: "40%",
-          left: "40%",
-          width: "600px",
-          height: "600px",
-          opacity: 0.06,
-          background: "radial-gradient(circle, rgb(var(--color-primary)), transparent 60%)",
-          willChange: "transform",
-        }}
+        style={{ bottom: "10%", left: "20%", width: "350px", height: "350px", opacity: 0.12, background: "radial-gradient(circle, rgb(var(--color-secondary)), transparent 70%)", willChange: "transform" }}
       />
     </div>
   );
 }
 
 /**
- * Morphing cursor blob that warps to the shape of hovered elements.
- * When hovering interactive elements or containers with [data-cursor-morph],
- * it expands to match their bounding box and border-radius.
+ * Cursor/touch highlight effect.
+ * - Desktop: follows mouse, morphs to hovered interactive elements
+ * - Mobile: hidden by default, appears on tap and morphs to tapped element, then fades
  */
 export function CursorGlow() {
   const blobRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Position (center of blob)
   const mouseX = useMotionValue(-200);
   const mouseY = useMotionValue(-200);
-  const springX = useSpring(mouseX, { stiffness: 200, damping: 22, mass: 0.4 });
-  const springY = useSpring(mouseY, { stiffness: 200, damping: 22, mass: 0.4 });
+  const springX = useSpring(mouseX, { stiffness: 250, damping: 24, mass: 0.3 });
+  const springY = useSpring(mouseY, { stiffness: 250, damping: 24, mass: 0.3 });
 
-  // Size (morphing)
-  const width = useMotionValue(40);
-  const height = useMotionValue(40);
-  const springW = useSpring(width, { stiffness: 300, damping: 25 });
-  const springH = useSpring(height, { stiffness: 300, damping: 25 });
+  const width = useMotionValue(28);
+  const height = useMotionValue(28);
+  const springW = useSpring(width, { stiffness: 350, damping: 28 });
+  const springH = useSpring(height, { stiffness: 350, damping: 28 });
 
-  // Border radius
   const radius = useMotionValue(9999);
-  const springRadius = useSpring(radius, { stiffness: 300, damping: 25 });
+  const springRadius = useSpring(radius, { stiffness: 350, damping: 28 });
 
-  // Opacity
   const opacity = useMotionValue(0);
-  const springOpacity = useSpring(opacity, { stiffness: 300, damping: 30 });
+  const springOpacity = useSpring(opacity, { stiffness: 400, damping: 35 });
 
   const currentTarget = useRef<Element | null>(null);
+  const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const getMorphTarget = useCallback((el: Element | null): Element | null => {
+  const getMorphTarget = useCallback((el: Element | null): HTMLElement | null => {
     while (el) {
       if (el instanceof HTMLElement) {
-        // Elements that trigger morph: buttons, links, inputs, or anything with data-cursor-morph
         if (
           el.hasAttribute("data-cursor-morph") ||
           el.tagName === "BUTTON" ||
@@ -139,72 +94,98 @@ export function CursorGlow() {
     return null;
   }, []);
 
+  const morphToElement = useCallback((el: HTMLElement) => {
+    const rect = el.getBoundingClientRect();
+    const computedStyle = getComputedStyle(el);
+    const borderRadius = parseInt(computedStyle.borderRadius) || 12;
+    // Add more padding so the effect doesn't clip the element
+    const padding = 8;
+
+    mouseX.set(rect.left + rect.width / 2);
+    mouseY.set(rect.top + rect.height / 2);
+    width.set(rect.width + padding * 2);
+    height.set(rect.height + padding * 2);
+    radius.set(borderRadius + padding);
+    opacity.set(1);
+    currentTarget.current = el;
+  }, [mouseX, mouseY, width, height, radius, opacity]);
+
+  const resetBlob = useCallback(() => {
+    width.set(28);
+    height.set(28);
+    radius.set(9999);
+    currentTarget.current = null;
+  }, [width, height, radius]);
+
   useEffect(() => {
-    const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
-    if (!hasFinePointer) {
-      if (blobRef.current) blobRef.current.style.display = "none";
-      return;
-    }
+    const mobile = !window.matchMedia("(pointer: fine)").matches;
+    setIsMobile(mobile);
 
-    let rafId: number | undefined;
+    if (mobile) {
+      // Mobile: show on tap, then fade after delay
+      function handleTouch(e: TouchEvent) {
+        const touch = e.touches[0] || e.changedTouches[0];
+        if (!touch) return;
 
-    function handleMouseMove(e: MouseEvent) {
-      const target = getMorphTarget(e.target as Element);
+        const target = getMorphTarget(document.elementFromPoint(touch.clientX, touch.clientY));
+        if (target) {
+          morphToElement(target);
 
-      if (target && target instanceof HTMLElement) {
-        // Morph to element shape
-        const rect = target.getBoundingClientRect();
-        const computedStyle = getComputedStyle(target);
-        const borderRadius = parseInt(computedStyle.borderRadius) || 12;
-        const padding = 6; // extra breathing room
-
-        mouseX.set(rect.left + rect.width / 2);
-        mouseY.set(rect.top + rect.height / 2);
-        width.set(rect.width + padding * 2);
-        height.set(rect.height + padding * 2);
-        radius.set(borderRadius + padding);
-        opacity.set(1);
-        currentTarget.current = target;
-      } else {
-        // Free-floating blob
-        mouseX.set(e.clientX);
-        mouseY.set(e.clientY);
-        width.set(32);
-        height.set(32);
-        radius.set(9999);
-        opacity.set(0.5);
-        currentTarget.current = null;
+          // Auto-fade after 600ms
+          if (fadeTimer.current) clearTimeout(fadeTimer.current);
+          fadeTimer.current = setTimeout(() => {
+            opacity.set(0);
+            resetBlob();
+          }, 600);
+        }
       }
-    }
 
-    function handleMouseLeave() {
-      opacity.set(0);
-      currentTarget.current = null;
-    }
+      window.addEventListener("touchstart", handleTouch, { passive: true });
+      return () => {
+        window.removeEventListener("touchstart", handleTouch);
+        if (fadeTimer.current) clearTimeout(fadeTimer.current);
+      };
+    } else {
+      // Desktop: follow mouse
+      function handleMouseMove(e: MouseEvent) {
+        const target = getMorphTarget(e.target as Element);
 
-    function handleScroll() {
-      // When scrolling while hovering a target, re-calc position
-      if (currentTarget.current && currentTarget.current instanceof HTMLElement) {
-        const rect = currentTarget.current.getBoundingClientRect();
-        const padding = 6;
-        mouseX.set(rect.left + rect.width / 2);
-        mouseY.set(rect.top + rect.height / 2);
-        width.set(rect.width + padding * 2);
-        height.set(rect.height + padding * 2);
+        if (target) {
+          morphToElement(target);
+        } else {
+          mouseX.set(e.clientX);
+          mouseY.set(e.clientY);
+          resetBlob();
+          opacity.set(0.4);
+        }
       }
+
+      function handleMouseLeave() {
+        opacity.set(0);
+        resetBlob();
+      }
+
+      function handleScroll() {
+        if (currentTarget.current instanceof HTMLElement) {
+          const rect = currentTarget.current.getBoundingClientRect();
+          mouseX.set(rect.left + rect.width / 2);
+          mouseY.set(rect.top + rect.height / 2);
+          width.set(rect.width + 16);
+          height.set(rect.height + 16);
+        }
+      }
+
+      window.addEventListener("mousemove", handleMouseMove);
+      document.documentElement.addEventListener("mouseleave", handleMouseLeave);
+      window.addEventListener("scroll", handleScroll, { passive: true });
+
+      return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+        document.documentElement.removeEventListener("mouseleave", handleMouseLeave);
+        window.removeEventListener("scroll", handleScroll);
+      };
     }
-
-    window.addEventListener("mousemove", handleMouseMove);
-    document.documentElement.addEventListener("mouseleave", handleMouseLeave);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      document.documentElement.removeEventListener("mouseleave", handleMouseLeave);
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, [mouseX, mouseY, width, height, radius, opacity, getMorphTarget]);
+  }, [mouseX, mouseY, width, height, radius, opacity, getMorphTarget, morphToElement, resetBlob, isMobile]);
 
   return (
     <motion.div
@@ -223,12 +204,10 @@ export function CursorGlow() {
         opacity: springOpacity,
         translateX: "-50%",
         translateY: "-50%",
-        background: "rgb(var(--color-primary) / 0.04)",
-        border: "1px solid rgb(var(--color-primary) / 0.12)",
-        boxShadow: "0 0 20px rgb(var(--color-primary) / 0.05), inset 0 0 20px rgb(var(--color-primary) / 0.02)",
-        backdropFilter: "blur(0.5px)",
+        background: "rgb(var(--color-primary) / 0.03)",
+        border: "1px solid rgb(var(--color-primary) / 0.08)",
+        boxShadow: "0 0 12px rgb(var(--color-primary) / 0.03)",
         willChange: "transform, width, height, border-radius, opacity",
-        transition: "background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
       }}
     />
   );

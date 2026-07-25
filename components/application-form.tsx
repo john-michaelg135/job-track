@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
 import { X } from "@phosphor-icons/react";
 import type { Application, ApplicationFormData, ApplicationStatus } from "@/lib/types";
 
@@ -32,6 +31,10 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
     applied_date: application?.applied_date ?? new Date().toISOString().split("T")[0],
     notes: application?.notes ?? "",
   });
+
+  const handleChange = useCallback((field: keyof ApplicationFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -77,60 +80,52 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
     }
   }
 
-  const inputStyles = {
-    background: "rgb(var(--color-surface))",
-    borderColor: "rgb(var(--color-outline))",
-    color: "rgb(var(--color-on-surface))",
-  };
+  const inputClass = "w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm outline-none transition-colors duration-150 focus:ring-2 focus:ring-[rgb(var(--color-primary))/0.4] focus:border-transparent";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className="fixed inset-0"
-        style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+      {/* Backdrop — simple opacity, NO backdrop-filter for perf */}
+      <div
+        className="fixed inset-0 animate-[fadeIn_150ms_ease-out]"
+        style={{ background: "rgba(0, 0, 0, 0.4)" }}
         onClick={onClose}
       />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.92, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.92, y: 20 }}
-        transition={{ type: "spring", stiffness: 400, damping: 28 }}
-        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[var(--radius-xl)] border"
+
+      {/* Modal — CSS animation instead of motion for 120fps */}
+      <div
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[var(--radius-xl)] border animate-[modalIn_200ms_cubic-bezier(0.34,1.56,0.64,1)]"
         style={{
           background: "rgb(var(--color-surface-container))",
           borderColor: "rgb(var(--color-outline-variant))",
-          boxShadow: "var(--shadow-elevation-3)",
+          boxShadow: "0 24px 48px rgba(0,0,0,0.15), 0 8px 16px rgba(0,0,0,0.1)",
         }}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "rgb(var(--color-outline-variant))" }}>
+        {/* Header */}
+        <div
+          className="flex items-center justify-between px-6 py-4 border-b sticky top-0"
+          style={{ borderColor: "rgb(var(--color-outline-variant))", background: "rgb(var(--color-surface-container))" }}
+        >
           <h2 className="text-lg font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>
             {application ? "Edit Application" : "Add Application"}
           </h2>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+          <button
             onClick={onClose}
-            className="p-1.5 rounded-[var(--radius-full)]"
+            className="p-1.5 rounded-[var(--radius-full)] transition-transform duration-150 hover:scale-110 active:scale-90"
             style={{ color: "rgb(var(--color-on-surface-variant))" }}
           >
             <X size={20} weight="bold" />
-          </motion.button>
+          </button>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className="text-sm px-4 py-3 rounded-[var(--radius-md)]"
               style={{ background: "rgb(var(--color-error) / 0.1)", color: "rgb(var(--color-error))" }}
             >
               {error}
-            </motion.div>
+            </div>
           )}
 
           <div>
@@ -139,9 +134,9 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
               type="text"
               required
               value={formData.company}
-              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-              className="w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent outline-none"
-              style={inputStyles}
+              onChange={(e) => handleChange("company", e.target.value)}
+              className={inputClass}
+              style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
               placeholder="e.g. Acme Corp"
             />
           </div>
@@ -152,9 +147,9 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
               type="text"
               required
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              className="w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent outline-none"
-              style={inputStyles}
+              onChange={(e) => handleChange("role", e.target.value)}
+              className={inputClass}
+              style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
               placeholder="e.g. Senior Frontend Engineer"
             />
           </div>
@@ -164,9 +159,9 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
             <input
               type="url"
               value={formData.url}
-              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-              className="w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent outline-none"
-              style={inputStyles}
+              onChange={(e) => handleChange("url", e.target.value)}
+              className={inputClass}
+              style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
               placeholder="https://..."
             />
           </div>
@@ -176,9 +171,9 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
               <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Status</label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as ApplicationStatus })}
-                className="w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent outline-none"
-                style={inputStyles}
+                onChange={(e) => handleChange("status", e.target.value)}
+                className={inputClass}
+                style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
               >
                 {STATUS_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -190,9 +185,9 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
               <input
                 type="date"
                 value={formData.applied_date}
-                onChange={(e) => setFormData({ ...formData, applied_date: e.target.value })}
-                className="w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent outline-none"
-                style={inputStyles}
+                onChange={(e) => handleChange("applied_date", e.target.value)}
+                className={inputClass}
+                style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
               />
             </div>
           </div>
@@ -201,37 +196,34 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
             <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Notes</label>
             <textarea
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) => handleChange("notes", e.target.value)}
               rows={3}
-              className="w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent outline-none resize-none"
-              style={inputStyles}
+              className={`${inputClass} resize-none`}
+              style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
               placeholder="Any notes..."
             />
           </div>
 
           <div className="flex gap-3 pt-3">
-            <motion.button
+            <button
               type="button"
-              whileTap={{ scale: 0.96 }}
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 border rounded-[var(--radius-full)] font-medium text-sm transition-all duration-200"
+              className="flex-1 px-4 py-2.5 border rounded-[var(--radius-full)] font-medium text-sm transition-transform duration-150 active:scale-95"
               style={{ borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
             >
               Cancel
-            </motion.button>
-            <motion.button
+            </button>
+            <button
               type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.96 }}
               disabled={loading}
-              className="flex-1 px-4 py-2.5 rounded-[var(--radius-full)] font-medium text-sm transition-all duration-200 disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 rounded-[var(--radius-full)] font-medium text-sm transition-transform duration-150 active:scale-95 disabled:opacity-50"
               style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}
             >
               {loading ? "Saving..." : application ? "Update" : "Add"}
-            </motion.button>
+            </button>
           </div>
         </form>
-      </motion.div>
+      </div>
     </div>
   );
 }
