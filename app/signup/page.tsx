@@ -81,6 +81,12 @@ export default function SignupPage() {
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent" style={inputStyles} placeholder="••••••••" />
             <p className="mt-1 text-xs" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Minimum 6 characters</p>
           </div>
+          <div className="flex items-start gap-2">
+            <input type="checkbox" id="consent" required className="mt-1 w-4 h-4 rounded accent-[rgb(var(--color-primary))]" />
+            <label htmlFor="consent" className="text-xs leading-relaxed" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
+              I agree to the <a href="/terms" target="_blank" className="underline" style={{ color: "rgb(var(--color-primary))" }}>Terms of Service</a> and <a href="/privacy" target="_blank" className="underline" style={{ color: "rgb(var(--color-primary))" }}>Privacy Policy</a>. I understand my email and encrypted password will be stored for authentication.
+            </label>
+          </div>
           <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 rounded-[var(--radius-full)] font-medium text-sm transition-shadow duration-200 hover:shadow-lg disabled:opacity-50" style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}>
             {loading ? "Creating account..." : "Create account"}
             {!loading && <ArrowRight size={16} weight="bold" />}

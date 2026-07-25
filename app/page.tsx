@@ -146,6 +146,10 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="px-6 py-6 text-center text-xs" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
+        <div className="flex items-center justify-center gap-4 mb-2">
+          <Link href="/privacy" className="hover:underline" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Privacy Policy</Link>
+          <Link href="/terms" className="hover:underline" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Terms of Service</Link>
+        </div>
         Built with Next.js & Supabase
       </footer>
     </div>

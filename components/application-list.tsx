@@ -74,22 +74,22 @@ export function ApplicationList({ applications }: ApplicationListProps) {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none">
         <FunnelSimple size={18} className="shrink-0 mt-1.5" style={{ color: "rgb(var(--color-on-surface-variant))" }} />
         {FILTER_OPTIONS.map((opt) => (
-          <motion.button
+          <button
             key={opt.value}
-            whileTap={{ scale: 0.93 }}
             onClick={() => setFilter(opt.value)}
-            className="px-4 py-1.5 rounded-[var(--radius-full)] text-sm font-medium whitespace-nowrap border transition-all duration-200"
+            className="px-4 py-2 rounded-[var(--radius-full)] text-sm font-medium whitespace-nowrap border transition-all duration-200 shrink-0 touch-manipulation"
             style={{
               background: filter === opt.value ? "rgb(var(--color-primary))" : "rgb(var(--color-surface-container))",
               color: filter === opt.value ? "rgb(var(--color-on-primary))" : "rgb(var(--color-on-surface-variant))",
               borderColor: filter === opt.value ? "transparent" : "rgb(var(--color-outline-variant))",
+              minHeight: "40px",
             }}
           >
             {opt.label}
-          </motion.button>
+          </button>
         ))}
       </div>
 

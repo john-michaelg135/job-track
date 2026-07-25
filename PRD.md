@@ -17,7 +17,7 @@ Individual job seekers who want a simple, clean way to track where they've appli
 ### Authentication
 - Email/password sign-up and login
 - Logout
-- Session-aware navigation (show user email, redirect unauthenticated users)
+S- Session-aware navigation (show user email, redirect unauthenticated users)
 
 ### Dashboard
 - List all job applications for the signed-in user

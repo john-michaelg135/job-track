@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/lib/theme";
 import { AuthListener } from "@/components/auth-listener";
 import { BackgroundOrbs, CursorGlow } from "@/components/background-effects";
+import { ConsentBanner } from "@/components/consent-banner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -56,6 +57,7 @@ export default function RootLayout({
           <CursorGlow />
           <AuthListener />
           {children}
+          <ConsentBanner />
         </ThemeProvider>
       </body>
     </html>
