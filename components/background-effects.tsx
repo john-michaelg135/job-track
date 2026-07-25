@@ -169,10 +169,10 @@ export function CursorGlow() {
         // Free-floating blob
         mouseX.set(e.clientX);
         mouseY.set(e.clientY);
-        width.set(40);
-        height.set(40);
+        width.set(32);
+        height.set(32);
         radius.set(9999);
-        opacity.set(0.7);
+        opacity.set(0.5);
         currentTarget.current = null;
       }
     }
@@ -223,11 +223,12 @@ export function CursorGlow() {
         opacity: springOpacity,
         translateX: "-50%",
         translateY: "-50%",
-        background: "rgb(var(--color-primary) / 0.08)",
-        border: "1.5px solid rgb(var(--color-primary) / 0.15)",
-        backdropFilter: "blur(1px)",
+        background: "rgb(var(--color-primary) / 0.04)",
+        border: "1px solid rgb(var(--color-primary) / 0.12)",
+        boxShadow: "0 0 20px rgb(var(--color-primary) / 0.05), inset 0 0 20px rgb(var(--color-primary) / 0.02)",
+        backdropFilter: "blur(0.5px)",
         willChange: "transform, width, height, border-radius, opacity",
-        transition: "background 0.3s ease, border-color 0.3s ease",
+        transition: "background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
       }}
     />
   );

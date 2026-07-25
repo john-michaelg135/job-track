@@ -6,7 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 
 /**
  * Listens for Supabase auth state changes (email confirmation hash fragment).
- * Only redirects to /dashboard if the user is NOT already there.
+ * Redirects to confirmed page on first sign-in from email confirmation,
+ * or dashboard if already authenticated and navigating.
  */
 export function AuthListener() {
   const router = useRouter();
@@ -18,8 +19,16 @@ export function AuthListener() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN" && !pathname.startsWith("/dashboard")) {
-        router.push("/dashboard");
+      // Only redirect from public pages (landing, login, signup)
+      const isPublicPage = pathname === "/" || pathname === "/login" || pathname === "/signup";
+
+      if (event === "SIGNED_IN" && isPublicPage) {
+        // If on signup page, likely coming from email confirmation hash
+        if (pathname === "/signup" || pathname === "/") {
+          router.push("/auth/confirmed");
+        } else {
+          router.push("/dashboard");
+        }
         router.refresh();
       }
     });
