@@ -19,6 +19,7 @@ export function DashboardNav({ email }: { email: string }) {
   const router = useRouter();
   const { theme, accent, toggleTheme, setAccent } = useTheme();
   const [showPalette, setShowPalette] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -132,7 +133,7 @@ export function DashboardNav({ email }: { email: string }) {
           {/* Logout */}
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={handleLogout}
+            onClick={() => setShowLogoutConfirm(true)}
             className="p-2 rounded-[var(--radius-full)] transition-colors duration-200"
             style={{ color: "rgb(var(--color-on-surface-variant))" }}
             title="Log out"
@@ -141,6 +142,47 @@ export function DashboardNav({ email }: { email: string }) {
           </motion.button>
         </div>
       </div>
+
+      {/* Logout confirmation */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 animate-[fadeIn_150ms_ease-out]"
+            style={{ background: "rgba(0, 0, 0, 0.4)" }}
+            onClick={() => setShowLogoutConfirm(false)}
+          />
+          <div
+            className="relative p-6 rounded-[var(--radius-xl)] border animate-[modalIn_200ms_cubic-bezier(0.34,1.56,0.64,1)] w-full max-w-xs text-center"
+            style={{
+              background: "rgb(var(--color-surface-container))",
+              borderColor: "rgb(var(--color-outline-variant))",
+              boxShadow: "0 24px 48px rgba(0,0,0,0.15)",
+            }}
+          >
+            <SignOut size={32} weight="duotone" className="mx-auto mb-3" style={{ color: "rgb(var(--color-primary))" }} />
+            <h3 className="font-semibold mb-1" style={{ color: "rgb(var(--color-on-surface))" }}>Log out?</h3>
+            <p className="text-sm mb-5" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
+              Are you sure you want to sign out?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 px-4 py-2.5 border rounded-[var(--radius-full)] font-medium text-sm transition-transform duration-150 active:scale-95"
+                style={{ borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 px-4 py-2.5 rounded-[var(--radius-full)] font-medium text-sm transition-transform duration-150 active:scale-95"
+                style={{ background: "rgb(var(--color-error))", color: "#fff" }}
+              >
+                Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
