@@ -2,7 +2,7 @@
 
 A full-stack job application tracker built with Next.js, Supabase, and Tailwind CSS. Track your applications, update statuses, and stay organized — all in one private, secure place.
 
-**Live:** [kiro-app-bice.vercel.app](https://kiro-app-bice.vercel.app)
+**Live:** [job-track-bice.vercel.app](https://job-track-bice.vercel.app)
 
 ## Features
 
