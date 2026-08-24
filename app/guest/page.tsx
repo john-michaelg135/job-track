@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
-import { Plus, PencilSimple, Trash, ArrowSquareOut, FunnelSimple, Briefcase, SignOut, Info } from "@phosphor-icons/react";
+import { motion, AnimatePresence } from "motion/react";
+import { Plus, PencilSimple, Trash, ArrowSquareOut, FunnelSimple, Briefcase, SignOut, Info, Moon, Sun, Palette, X } from "@phosphor-icons/react";
 import Link from "next/link";
+import { useTheme } from "@/lib/theme";
 import type { Application, ApplicationFormData, ApplicationStatus } from "@/lib/types";
 import { StatusBadge } from "@/components/status-badge";
 import { getGuestApplications, addGuestApplication, updateGuestApplication, deleteGuestApplication, setGuestMode } from "@/lib/guest-storage";
@@ -17,12 +18,22 @@ const FILTER_OPTIONS: { value: ApplicationStatus | "all"; label: string }[] = [
   { value: "rejected", label: "Rejected" },
 ];
 
+const ACCENTS = [
+  { id: "indigo" as const, color: "#4F46E5", label: "Indigo" },
+  { id: "teal" as const, color: "#0D9488", label: "Teal" },
+  { id: "rose" as const, color: "#E11D48", label: "Rose" },
+  { id: "amber" as const, color: "#B45309", label: "Amber" },
+  { id: "emerald" as const, color: "#059669", label: "Emerald" },
+];
+
 export default function GuestDashboard() {
   const router = useRouter();
+  const { theme, accent, toggleTheme, setAccent } = useTheme();
   const [applications, setApplications] = useState<Application[]>([]);
   const [filter, setFilter] = useState<ApplicationStatus | "all">("all");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Application | undefined>(undefined);
+  const [showPalette, setShowPalette] = useState(false);
 
   useEffect(() => {
     setGuestMode(true);
@@ -73,14 +84,65 @@ export default function GuestDashboard() {
               Guest
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Link
               href="/signup"
-              className="text-xs font-medium px-3 py-1.5 rounded-[var(--radius-full)]"
+              className="hidden sm:inline-flex text-xs font-medium px-3 py-1.5 rounded-[var(--radius-full)]"
               style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}
             >
               Sign up to save
             </Link>
+
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-[var(--radius-full)] transition-colors duration-200"
+              style={{ color: "rgb(var(--color-on-surface-variant))" }}
+              title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+            >
+              {theme === "light" ? <Moon size={18} weight="bold" /> : <Sun size={18} weight="bold" />}
+            </button>
+
+            {/* Accent picker */}
+            <div className="relative">
+              <button
+                onClick={() => setShowPalette(!showPalette)}
+                className="p-2 rounded-[var(--radius-full)] transition-colors duration-200"
+                style={{ color: "rgb(var(--color-primary))" }}
+                title="Change accent color"
+              >
+                <Palette size={18} weight="bold" />
+              </button>
+              <AnimatePresence>
+                {showPalette && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: -5 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -5 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="absolute right-0 top-full mt-2 p-3 rounded-[var(--radius-lg)] border shadow-lg"
+                    style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))" }}
+                  >
+                    <div className="flex items-center gap-2 mb-2 justify-between">
+                      <span className="text-xs font-medium" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Accent</span>
+                      <button onClick={() => setShowPalette(false)}><X size={14} style={{ color: "rgb(var(--color-on-surface-variant))" }} /></button>
+                    </div>
+                    <div className="flex gap-2">
+                      {ACCENTS.map((a) => (
+                        <button
+                          key={a.id}
+                          onClick={() => { setAccent(a.id); setShowPalette(false); }}
+                          className="w-7 h-7 rounded-full border-2 transition-all duration-200"
+                          style={{ background: a.color, borderColor: accent === a.id ? "rgb(var(--color-on-surface))" : "transparent" }}
+                          title={a.label}
+                        />
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <button
               onClick={handleExitGuest}
               className="p-2 rounded-[var(--radius-full)]"
