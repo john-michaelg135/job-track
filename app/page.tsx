@@ -102,6 +102,13 @@ export default function Home() {
             >
               I have an account
             </Link>
+            <Link
+              href="/guest"
+              className="w-full sm:w-auto flex items-center justify-center px-7 py-3.5 rounded-[var(--radius-full)] font-medium text-sm transition-all duration-300 hover:scale-105 active:scale-95"
+              style={{ background: "rgb(var(--color-primary-container))", color: "rgb(var(--color-on-primary-container))" }}
+            >
+              Try as guest
+            </Link>
           </motion.div>
         </div>
       </main>
