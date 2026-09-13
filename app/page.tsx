@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Briefcase, ArrowRight, ShieldCheck, FunnelSimple, Lightning } from "@phosphor-icons/react";
+import { ArrowRight, ShieldCheck, FunnelSimple, Lightning } from "@phosphor-icons/react";
+import { BrandMark } from "@/components/brand-mark";
 
 export default function Home() {
   return (
@@ -15,12 +16,7 @@ export default function Home() {
         className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto w-full"
       >
         <div className="flex items-center gap-2">
-          <div
-            className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center"
-            style={{ background: "rgb(var(--color-primary))" }}
-          >
-            <Briefcase size={18} weight="bold" color="rgb(var(--color-on-primary))" />
-          </div>
+          <BrandMark size={32} />
           <span className="text-lg font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>
             JobTrack
           </span>
@@ -104,6 +100,7 @@ export default function Home() {
             </Link>
             <Link
               href="/guest"
+              replace
               className="w-full sm:w-auto flex items-center justify-center px-7 py-3.5 rounded-[var(--radius-full)] font-medium text-sm transition-all duration-300 hover:scale-105 active:scale-95"
               style={{ background: "rgb(var(--color-primary-container))", color: "rgb(var(--color-on-primary-container))" }}
             >

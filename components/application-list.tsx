@@ -11,6 +11,7 @@ import { ApplicationForm } from "./application-form";
 import { ClassicApplicationTable } from "./classic-application-table";
 import { ConfirmDialog } from "./confirm-dialog";
 import { isNetworkError, queueApplicationMutation } from "@/lib/offline";
+import { useModalBack } from "@/lib/use-modal-back";
 
 const FILTER_OPTIONS: { value: ApplicationStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -81,6 +82,9 @@ export function ApplicationList({ applications }: ApplicationListProps) {
     setShowForm(false);
     setEditing(undefined);
   }
+
+  useModalBack(showForm, handleClose);
+  useModalBack(deleteId !== null, () => setDeleteId(null));
 
   return (
     <>

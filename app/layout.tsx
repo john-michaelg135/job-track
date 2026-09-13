@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/lib/theme";
 import { AuthListener } from "@/components/auth-listener";
@@ -22,6 +23,13 @@ export const metadata: Metadata = {
   description: "Track your job applications in one place.",
   manifest: "/manifest.webmanifest",
 };
+
+export async function generateViewport(): Promise<Viewport> {
+  const theme = (await cookies()).get("jt-theme")?.value;
+  return {
+    themeColor: theme === "dark" ? "#121216" : "#fafafc",
+  };
+}
 
 export default function RootLayout({
   children,

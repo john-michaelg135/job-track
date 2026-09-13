@@ -21,13 +21,13 @@ const GUEST_BANNER_KEY = "jt-show-guest-banner";
 
 export function SettingsPanel({ guest = false, onClose, onGuestBannerChange, onLayoutChange }: { guest?: boolean; onClose?: () => void; onGuestBannerChange?: (visible: boolean) => void; onLayoutChange?: (classic: boolean, ascending: boolean) => void }) {
   const { theme, setTheme, accent, setAccent } = useTheme();
-  const [showGuestBanner, setShowGuestBanner] = useState(true);
+  const [showGuestBanner, setShowGuestBanner] = useState(false);
   const [message, setMessage] = useState("");
   const [classicLayout, setClassicLayout] = useState(false);
   const [sortAscending, setSortAscending] = useState(false);
 
   useEffect(() => {
-    setShowGuestBanner(localStorage.getItem(GUEST_BANNER_KEY) !== "false");
+    setShowGuestBanner(localStorage.getItem(GUEST_BANNER_KEY) === "true");
     setClassicLayout(localStorage.getItem("jt-classic-layout") === "true");
     setSortAscending(localStorage.getItem("jt-classic-sort-ascending") === "true");
   }, []);
@@ -129,7 +129,7 @@ export function SettingsPanel({ guest = false, onClose, onGuestBannerChange, onL
       <section className="p-5 rounded-[var(--radius-xl)] border mb-6" style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))" }}>
         <div className="flex items-center gap-2 mb-4"><Palette size={18} weight="bold" style={{ color: "rgb(var(--color-primary))" }} /><h2 className="font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>Appearance</h2></div>
         <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Color mode</label>
-        <div className="grid grid-cols-3 gap-3 mb-5">{(["light", "dark", "auto"] as const).map((mode) => <button key={mode} onClick={() => setTheme(mode)} className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-[var(--radius-md)] border text-sm font-medium" style={{ background: theme === mode ? "rgb(var(--color-primary))" : "rgb(var(--color-surface))", color: theme === mode ? "rgb(var(--color-on-primary))" : "rgb(var(--color-on-surface))", borderColor: theme === mode ? "transparent" : "rgb(var(--color-outline))" }}>{mode === "light" ? <Sun size={17} /> : mode === "dark" ? <Moon size={17} /> : <Monitor size={17} />}{mode[0].toUpperCase() + mode.slice(1)}</button>)}</div>
+        <div className="grid grid-cols-3 gap-3 mb-5">{(["light", "dark", "auto"] as const).map((mode) => <button key={mode} onClick={() => setTheme(mode)} className="flex items-center justify-center gap-0 sm:gap-2 px-2 sm:px-3 py-2.5 rounded-[var(--radius-md)] border text-sm font-medium" style={{ background: theme === mode ? "rgb(var(--color-primary))" : "rgb(var(--color-surface))", color: theme === mode ? "rgb(var(--color-on-primary))" : "rgb(var(--color-on-surface))", borderColor: theme === mode ? "transparent" : "rgb(var(--color-outline))" }}>{mode === "light" ? <Sun size={17} className="hidden sm:block" /> : mode === "dark" ? <Moon size={17} className="hidden sm:block" /> : <Monitor size={17} className="hidden sm:block" />}{mode[0].toUpperCase() + mode.slice(1)}</button>)}</div>
         <label className="block text-sm font-medium mb-2" style={{ color: "rgb(var(--color-on-surface))" }}>Accent color</label>
         <div className="flex gap-3">{ACCENTS.map((item) => <button key={item.id} onClick={() => setAccent(item.id)} aria-label={item.label} title={item.label} className="w-8 h-8 rounded-full border-2" style={{ background: item.color, borderColor: accent === item.id ? "rgb(var(--color-on-surface))" : "transparent" }} />)}</div>
       </section>

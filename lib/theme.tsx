@@ -60,6 +60,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute("data-accent", accent);
     localStorage.setItem("jt-theme", theme);
     localStorage.setItem("jt-accent", accent);
+    document.cookie = `jt-theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;
     document.cookie = `jt-accent=${accent}; Path=/; Max-Age=31536000; SameSite=Lax`;
   }, [theme, accent, systemTheme, mounted]);
 

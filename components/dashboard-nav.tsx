@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Palette, SignOut, X, GearSix } from "@phosphor-icons/react";
 import { SettingsPanel } from "@/components/settings-panel";
 import { BrandMark } from "@/components/brand-mark";
+import { useModalBack } from "@/lib/use-modal-back";
 
 const ACCENTS = [
   { id: "indigo" as const, color: "#4F46E5", label: "Indigo" },
@@ -24,6 +25,9 @@ export function DashboardNav({ email }: { email: string }) {
   const [showPalette, setShowPalette] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+
+  useModalBack(showSettings, () => setShowSettings(false));
+  useModalBack(showLogoutConfirm, () => setShowLogoutConfirm(false));
 
   async function handleLogout() {
     const supabase = createClient();

@@ -12,6 +12,7 @@ import { getGuestApplications, addGuestApplication, updateGuestApplication, dele
 import { SettingsPanel } from "@/components/settings-panel";
 import { ClassicApplicationTable } from "@/components/classic-application-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useModalBack } from "@/lib/use-modal-back";
 import { BrandMark } from "@/components/brand-mark";
 
 const FILTER_OPTIONS: { value: ApplicationStatus | "all"; label: string }[] = [
@@ -38,17 +39,20 @@ export default function GuestDashboard() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Application | undefined>(undefined);
   const [showPalette, setShowPalette] = useState(false);
-  const [showGuestBanner, setShowGuestBanner] = useState(true);
+  const [showGuestBanner, setShowGuestBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [classicLayout, setClassicLayout] = useState(false);
   const [sortAscending, setSortAscending] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+  useModalBack(showForm, () => { setShowForm(false); setEditing(undefined); });
+  useModalBack(showSettings, () => setShowSettings(false));
+
   useEffect(() => {
     setGuestMode(true);
     const loadGuestState = window.setTimeout(() => {
       setApplications(getGuestApplications());
-      setShowGuestBanner(localStorage.getItem("jt-show-guest-banner") !== "false");
+      setShowGuestBanner(localStorage.getItem("jt-show-guest-banner") === "true");
       setClassicLayout(localStorage.getItem("jt-classic-layout") === "true");
       setSortAscending(localStorage.getItem("jt-classic-sort-ascending") === "true");
     }, 0);
