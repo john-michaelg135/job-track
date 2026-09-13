@@ -217,16 +217,19 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Status</label>
-              <select
-                value={formData.status}
-                onChange={(e) => handleChange("status", e.target.value)}
-                className={inputClass}
-                style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
-              >
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={formData.status}
+                  onChange={(e) => handleChange("status", e.target.value)}
+                  className={`${inputClass} appearance-none pr-10`}
+                  style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+                <CaretDown size={16} weight="bold" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "rgb(var(--color-on-surface-variant))" }} />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Date Applied</label>
