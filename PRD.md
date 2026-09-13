@@ -23,6 +23,7 @@ S- Session-aware navigation (show user email, redirect unauthenticated users)
 - List all job applications for the signed-in user
 - Show: company name, role title, status, date applied
 - Filter by status (Applied, Interviewing, Offer, Rejected)
+- Optional offer details for each application
 - Empty state for new users
 
 ### Add / Edit Application

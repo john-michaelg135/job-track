@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { motion } from "motion/react";
@@ -8,6 +8,9 @@ import { Plus, PencilSimple, Trash, ArrowSquareOut, FunnelSimple, Briefcase } fr
 import type { Application, ApplicationStatus } from "@/lib/types";
 import { StatusBadge } from "./status-badge";
 import { ApplicationForm } from "./application-form";
+import { ClassicApplicationTable } from "./classic-application-table";
+import { ConfirmDialog } from "./confirm-dialog";
+import { isNetworkError, queueApplicationMutation } from "@/lib/offline";
 
 const FILTER_OPTIONS: { value: ApplicationStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -26,16 +29,46 @@ export function ApplicationList({ applications }: ApplicationListProps) {
   const [filter, setFilter] = useState<ApplicationStatus | "all">("all");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Application | undefined>(undefined);
+  const [classicLayout, setClassicLayout] = useState(false);
+  const [sortAscending, setSortAscending] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const filtered =
+  useEffect(() => {
+    const loadPreferences = (event?: Event) => {
+      const detail = (event as CustomEvent<{ classic?: boolean; ascending?: boolean }> | undefined)?.detail;
+      setClassicLayout(detail?.classic ?? (localStorage.getItem("jt-classic-layout") === "true"));
+      setSortAscending(detail?.ascending ?? (localStorage.getItem("jt-classic-sort-ascending") === "true"));
+    };
+    loadPreferences();
+    window.addEventListener("jt-layout-change", loadPreferences);
+    return () => window.removeEventListener("jt-layout-change", loadPreferences);
+  }, []);
+
+  useEffect(() => {
+    const refreshAfterSync = () => router.refresh();
+    window.addEventListener("jt-offline-sync", refreshAfterSync);
+    return () => window.removeEventListener("jt-offline-sync", refreshAfterSync);
+  }, [router]);
+
+  const filtered = (
     filter === "all"
       ? applications
-      : applications.filter((app) => app.status === filter);
+      : applications.filter((app) => app.status === filter)
+  ).slice().sort((a, b) => {
+    const comparison = a.applied_date.localeCompare(b.applied_date) || a.created_at.localeCompare(b.created_at);
+    return sortAscending ? comparison : -comparison;
+  });
 
-  async function handleDelete(id: string) {
-    if (!confirm("Delete this application?")) return;
+  async function confirmDelete() {
+    if (!deleteId) return;
     const supabase = createClient();
-    await supabase.from("applications").delete().eq("id", id);
+    if (!navigator.onLine) {
+      await queueApplicationMutation({ kind: "delete", payload: { id: deleteId } });
+    } else {
+      const { error } = await supabase.from("applications").delete().eq("id", deleteId);
+      if (error && isNetworkError(error)) await queueApplicationMutation({ kind: "delete", payload: { id: deleteId } });
+    }
+    setDeleteId(null);
     router.refresh();
   }
 
@@ -122,6 +155,8 @@ export function ApplicationList({ applications }: ApplicationListProps) {
             </motion.button>
           )}
         </motion.div>
+      ) : classicLayout ? (
+        <ClassicApplicationTable applications={filtered} onEdit={handleEdit} onDelete={setDeleteId} />
       ) : (
         <div className="space-y-3">
             {filtered.map((app) => (
@@ -148,6 +183,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
                     <p className="text-sm mt-0.5 truncate" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
                       {app.role}
                     </p>
+                    {app.offer && <p className="text-sm mt-1" style={{ color: "rgb(var(--color-primary))" }}>Offer: {app.offer_currency ?? "$"}{app.offer}</p>}
                     <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
                       <span>{app.applied_date}</span>
                       {app.url && (
@@ -179,7 +215,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
                       <PencilSimple size={18} weight="bold" />
                     </button>
                     <button
-                      onClick={() => handleDelete(app.id)}
+                      onClick={() => setDeleteId(app.id)}
                       className="p-2 rounded-[var(--radius-full)] transition-transform duration-150 hover:scale-110 active:scale-90"
                       style={{ color: "rgb(var(--color-error))" }}
                       title="Delete"
@@ -195,6 +231,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
 
       {/* Form Modal */}
       {showForm && <ApplicationForm application={editing} onClose={handleClose} />}
+      <ConfirmDialog open={deleteId !== null} title="Delete application?" message="This application will be permanently removed." onConfirm={confirmDelete} onClose={() => setDeleteId(null)} />
     </>
   );
 }

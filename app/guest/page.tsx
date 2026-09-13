@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { Plus, PencilSimple, Trash, ArrowSquareOut, FunnelSimple, Briefcase, SignOut, Info, Moon, Sun, Palette, X } from "@phosphor-icons/react";
+import { Plus, PencilSimple, Trash, ArrowSquareOut, FunnelSimple, Briefcase, SignOut, Info, Palette, X, GearSix, CaretDown } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useTheme } from "@/lib/theme";
 import type { Application, ApplicationFormData, ApplicationStatus } from "@/lib/types";
 import { StatusBadge } from "@/components/status-badge";
 import { getGuestApplications, addGuestApplication, updateGuestApplication, deleteGuestApplication, setGuestMode } from "@/lib/guest-storage";
+import { SettingsPanel } from "@/components/settings-panel";
+import { ClassicApplicationTable } from "@/components/classic-application-table";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { BrandMark } from "@/components/brand-mark";
 
 const FILTER_OPTIONS: { value: ApplicationStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -28,19 +32,34 @@ const ACCENTS = [
 
 export default function GuestDashboard() {
   const router = useRouter();
-  const { theme, accent, toggleTheme, setAccent } = useTheme();
+  const { accent, setAccent } = useTheme();
   const [applications, setApplications] = useState<Application[]>([]);
   const [filter, setFilter] = useState<ApplicationStatus | "all">("all");
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Application | undefined>(undefined);
   const [showPalette, setShowPalette] = useState(false);
+  const [showGuestBanner, setShowGuestBanner] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
+  const [classicLayout, setClassicLayout] = useState(false);
+  const [sortAscending, setSortAscending] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     setGuestMode(true);
-    setApplications(getGuestApplications());
+    const loadGuestState = window.setTimeout(() => {
+      setApplications(getGuestApplications());
+      setShowGuestBanner(localStorage.getItem("jt-show-guest-banner") !== "false");
+      setClassicLayout(localStorage.getItem("jt-classic-layout") === "true");
+      setSortAscending(localStorage.getItem("jt-classic-sort-ascending") === "true");
+    }, 0);
+
+    return () => window.clearTimeout(loadGuestState);
   }, []);
 
-  const filtered = filter === "all" ? applications : applications.filter((a) => a.status === filter);
+  const filtered = (filter === "all" ? applications : applications.filter((a) => a.status === filter)).slice().sort((a, b) => {
+    const comparison = a.applied_date.localeCompare(b.applied_date) || a.created_at.localeCompare(b.created_at);
+    return sortAscending ? comparison : -comparison;
+  });
 
   function handleAdd(formData: ApplicationFormData) {
     addGuestApplication(formData);
@@ -56,10 +75,11 @@ export default function GuestDashboard() {
     setEditing(undefined);
   }
 
-  function handleDelete(id: string) {
-    if (!confirm("Delete this application?")) return;
-    deleteGuestApplication(id);
+  function handleDelete() {
+    if (!deleteId) return;
+    deleteGuestApplication(deleteId);
     setApplications(getGuestApplications());
+    setDeleteId(null);
   }
 
   function handleExitGuest() {
@@ -76,9 +96,7 @@ export default function GuestDashboard() {
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center" style={{ background: "rgb(var(--color-primary))" }}>
-              <Briefcase size={15} weight="bold" color="rgb(var(--color-on-primary))" />
-            </div>
+            <BrandMark />
             <span className="font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>JobTrack</span>
             <span className="text-xs px-2 py-0.5 rounded-[var(--radius-full)] font-medium" style={{ background: "rgb(var(--color-warning) / 0.15)", color: "rgb(var(--color-warning))" }}>
               Guest
@@ -92,15 +110,13 @@ export default function GuestDashboard() {
             >
               Sign up to save
             </Link>
-
-            {/* Theme toggle */}
             <button
-              onClick={toggleTheme}
-              className="p-2 rounded-[var(--radius-full)] transition-colors duration-200"
+              onClick={() => setShowSettings(true)}
+              className="p-2 rounded-[var(--radius-full)]"
               style={{ color: "rgb(var(--color-on-surface-variant))" }}
-              title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+              title="Settings"
             >
-              {theme === "light" ? <Moon size={18} weight="bold" /> : <Sun size={18} weight="bold" />}
+              <GearSix size={18} weight="fill" />
             </button>
 
             {/* Accent picker */}
@@ -155,9 +171,11 @@ export default function GuestDashboard() {
         </div>
       </header>
 
+      {showSettings && <SettingsPanel guest onClose={() => setShowSettings(false)} onGuestBannerChange={setShowGuestBanner} onLayoutChange={(classic, ascending) => { setClassicLayout(classic); setSortAscending(ascending); }} />}
+
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Guest banner */}
-        <div
+        {showGuestBanner && <div
           className="flex items-start gap-3 p-4 rounded-[var(--radius-lg)] border mb-6"
           style={{ background: "rgb(var(--color-primary-container))", borderColor: "rgb(var(--color-primary) / 0.2)" }}
         >
@@ -165,7 +183,7 @@ export default function GuestDashboard() {
           <p className="text-xs leading-relaxed" style={{ color: "rgb(var(--color-on-primary-container))" }}>
             You&apos;re in guest mode. Data is saved locally in your browser. <Link href="/signup" className="font-semibold underline">Create an account</Link> to save across devices and keep your data secure.
           </p>
-        </div>
+        </div>}
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -229,6 +247,8 @@ export default function GuestDashboard() {
               </button>
             )}
           </div>
+        ) : classicLayout ? (
+          <ClassicApplicationTable applications={filtered} onEdit={(app) => { setEditing(app); setShowForm(true); }} onDelete={setDeleteId} />
         ) : (
           <div className="space-y-3">
             {filtered.map((app) => (
@@ -245,6 +265,7 @@ export default function GuestDashboard() {
                       <StatusBadge status={app.status} />
                     </div>
                     <p className="text-sm mt-0.5 truncate" style={{ color: "rgb(var(--color-on-surface-variant))" }}>{app.role}</p>
+                    {app.offer && <p className="text-sm mt-1" style={{ color: "rgb(var(--color-primary))" }}>Offer: {app.offer_currency ?? "$"}{app.offer}</p>}
                     <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
                       <span>{app.applied_date}</span>
                       {app.url && (
@@ -259,7 +280,7 @@ export default function GuestDashboard() {
                     <button onClick={() => { setEditing(app); setShowForm(true); }} className="p-2 rounded-[var(--radius-full)] transition-transform duration-150 hover:scale-110 active:scale-90" style={{ color: "rgb(var(--color-on-surface-variant))" }} title="Edit">
                       <PencilSimple size={18} weight="bold" />
                     </button>
-                    <button onClick={() => handleDelete(app.id)} className="p-2 rounded-[var(--radius-full)] transition-transform duration-150 hover:scale-110 active:scale-90" style={{ color: "rgb(var(--color-error))" }} title="Delete">
+                    <button onClick={() => setDeleteId(app.id)} className="p-2 rounded-[var(--radius-full)] transition-transform duration-150 hover:scale-110 active:scale-90" style={{ color: "rgb(var(--color-error))" }} title="Delete">
                       <Trash size={18} weight="bold" />
                     </button>
                   </div>
@@ -278,6 +299,7 @@ export default function GuestDashboard() {
           onClose={() => { setShowForm(false); setEditing(undefined); }}
         />
       )}
+      <ConfirmDialog open={deleteId !== null} title="Delete application?" message="This application will be permanently removed." onConfirm={handleDelete} onClose={() => setDeleteId(null)} />
     </div>
   );
 }
@@ -288,6 +310,8 @@ function GuestForm({ application, onSubmit, onClose }: { application?: Applicati
     company: application?.company ?? "",
     role: application?.role ?? "",
     url: application?.url ?? "",
+    offer: application?.offer ?? "",
+    offer_currency: application?.offer_currency ?? "₱",
     status: application?.status ?? "applied",
     applied_date: application?.applied_date ?? new Date().toISOString().split("T")[0],
     notes: application?.notes ?? "",
@@ -304,15 +328,16 @@ function GuestForm({ application, onSubmit, onClose }: { application?: Applicati
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 animate-[fadeIn_150ms_ease-out]" style={{ background: "rgba(0,0,0,0.4)" }} onClick={onClose} />
-      <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[var(--radius-xl)] border animate-[modalIn_200ms_cubic-bezier(0.34,1.56,0.64,1)]" style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))", boxShadow: "0 24px 48px rgba(0,0,0,0.15)" }}>
-        <div className="flex items-center justify-between px-6 py-4 border-b sticky top-0" style={{ borderColor: "rgb(var(--color-outline-variant))", background: "rgb(var(--color-surface-container))" }}>
+      <div className="relative w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto scrollbar-none rounded-[var(--radius-xl)] border animate-[modalIn_200ms_cubic-bezier(0.34,1.56,0.64,1)]" style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))", boxShadow: "0 24px 48px rgba(0,0,0,0.15)" }}>
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b sticky top-0" style={{ borderColor: "rgb(var(--color-outline-variant))", background: "rgb(var(--color-surface-container))" }}>
           <h2 className="text-lg font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>{application ? "Edit" : "Add"} Application</h2>
           <button onClick={onClose} className="p-1.5 rounded-[var(--radius-full)]" style={{ color: "rgb(var(--color-on-surface-variant))" }}>✕</button>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-3">
           <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Company *</label><input type="text" required value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className={inputClass} style={inputStyle} placeholder="e.g. Acme Corp" /></div>
           <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Role *</label><input type="text" required value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className={inputClass} style={inputStyle} placeholder="e.g. Frontend Engineer" /></div>
           <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Job URL</label><input type="url" value={formData.url} onChange={(e) => setFormData({ ...formData, url: e.target.value })} className={inputClass} style={inputStyle} placeholder="https://..." /></div>
+          <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Offer</label><div className="grid grid-cols-[minmax(0,1fr)_7rem] gap-2"><input type="text" inputMode="numeric" pattern="[0-9]*" value={formData.offer} onChange={(e) => setFormData({ ...formData, offer: e.target.value.replace(/\D/g, "") })} className={`${inputClass} min-w-0`} style={inputStyle} placeholder="e.g. 120000" aria-label="Offer amount" /><div className="relative min-w-0"><select value={formData.offer_currency} onChange={(e) => setFormData({ ...formData, offer_currency: e.target.value as ApplicationFormData["offer_currency"] })} className={`${inputClass} min-w-0 appearance-none pr-10`} style={inputStyle} aria-label="Offer currency"><option value="₱">₱</option><option value="$">$</option></select><CaretDown size={16} weight="bold" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "rgb(var(--color-on-surface-variant))" }} /></div></div></div>
           <div className="grid grid-cols-2 gap-4">
             <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Status</label><select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value as ApplicationStatus })} className={inputClass} style={inputStyle}><option value="applied">Applied</option><option value="interviewing">Interviewing</option><option value="offer">Offer</option><option value="rejected">Rejected</option></select></div>
             <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Date</label><input type="date" value={formData.applied_date} onChange={(e) => setFormData({ ...formData, applied_date: e.target.value })} className={inputClass} style={inputStyle} /></div>

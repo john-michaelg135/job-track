@@ -3,8 +3,9 @@
 import { useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { X } from "@phosphor-icons/react";
+import { CaretDown, X } from "@phosphor-icons/react";
 import type { Application, ApplicationFormData, ApplicationStatus } from "@/lib/types";
+import { isNetworkError, queueApplicationMutation } from "@/lib/offline";
 
 const STATUS_OPTIONS: { value: ApplicationStatus; label: string }[] = [
   { value: "applied", label: "Applied" },
@@ -27,6 +28,8 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
     company: application?.company ?? "",
     role: application?.role ?? "",
     url: application?.url ?? "",
+    offer: application?.offer ?? "",
+    offer_currency: application?.offer_currency ?? "₱",
     status: application?.status ?? "applied",
     applied_date: application?.applied_date ?? new Date().toISOString().split("T")[0],
     notes: application?.notes ?? "",
@@ -47,31 +50,51 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
       company: formData.company,
       role: formData.role,
       url: formData.url || null,
+      offer: formData.offer || null,
+      offer_currency: formData.offer_currency || "₱",
       status: formData.status,
       applied_date: formData.applied_date,
       notes: formData.notes || null,
     };
 
     let result;
+    let pendingMutation;
     if (application) {
-      result = await supabase
-        .from("applications")
-        .update({ ...payload, updated_at: new Date().toISOString() })
-        .eq("id", application.id);
+      const values = { ...payload, updated_at: new Date().toISOString() };
+      pendingMutation = { kind: "update" as const, payload: { id: application.id, values } };
+      if (!navigator.onLine) {
+        await queueApplicationMutation(pendingMutation);
+        router.refresh();
+        onClose();
+        return;
+      }
+      result = await supabase.from("applications").update(values).eq("id", application.id);
     } else {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) {
         setError("You must be logged in.");
         setLoading(false);
         return;
       }
-      result = await supabase.from("applications").insert({
-        ...payload,
-        user_id: user.id,
-      });
+      const values = { ...payload, user_id: user.id };
+      pendingMutation = { kind: "insert" as const, payload: values };
+      if (!navigator.onLine) {
+        await queueApplicationMutation(pendingMutation);
+        router.refresh();
+        onClose();
+        return;
+      }
+      result = await supabase.from("applications").insert(values);
     }
 
     if (result.error) {
+      if (isNetworkError(result.error)) {
+        if (pendingMutation) await queueApplicationMutation(pendingMutation);
+        router.refresh();
+        onClose();
+        return;
+      }
       setError(result.error.message);
       setLoading(false);
     } else {
@@ -93,7 +116,7 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
 
       {/* Modal — CSS animation instead of motion for 120fps */}
       <div
-        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[var(--radius-xl)] border animate-[modalIn_200ms_cubic-bezier(0.34,1.56,0.64,1)]"
+        className="relative w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto scrollbar-none rounded-[var(--radius-xl)] border animate-[modalIn_200ms_cubic-bezier(0.34,1.56,0.64,1)]"
         style={{
           background: "rgb(var(--color-surface-container))",
           borderColor: "rgb(var(--color-outline-variant))",
@@ -102,7 +125,7 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
       >
         {/* Header */}
         <div
-          className="flex items-center justify-between px-6 py-4 border-b sticky top-0"
+          className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b sticky top-0"
           style={{ borderColor: "rgb(var(--color-outline-variant))", background: "rgb(var(--color-surface-container))" }}
         >
           <h2 className="text-lg font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>
@@ -118,7 +141,7 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-3">
           {error && (
             <div
               className="text-sm px-4 py-3 rounded-[var(--radius-md)]"
@@ -164,6 +187,17 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
               style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
               placeholder="https://..."
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Offer</label>
+            <div className="grid grid-cols-[minmax(0,1fr)_7rem] gap-2">
+              <input type="text" inputMode="numeric" pattern="[0-9]*" value={formData.offer} onChange={(e) => handleChange("offer", e.target.value.replace(/\D/g, ""))} className={`${inputClass} min-w-0`} style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }} placeholder="e.g. 120000" aria-label="Offer amount" />
+              <div className="relative min-w-0">
+                <select value={formData.offer_currency} onChange={(e) => handleChange("offer_currency", e.target.value)} className={`${inputClass} min-w-0 appearance-none pr-10`} style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }} aria-label="Offer currency"><option value="₱">₱</option><option value="$">$</option></select>
+                <CaretDown size={16} weight="bold" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "rgb(var(--color-on-surface-variant))" }} />
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

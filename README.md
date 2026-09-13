@@ -65,6 +65,8 @@ CREATE TABLE public.applications (
   company text NOT NULL,
   role text NOT NULL,
   url text,
+  offer text,
+  offer_currency text NOT NULL DEFAULT '$' CHECK (offer_currency IN ('$', '₱')),
   status text NOT NULL DEFAULT 'applied' 
     CHECK (status IN ('applied', 'interviewing', 'offer', 'rejected')),
   applied_date date NOT NULL DEFAULT CURRENT_DATE,
@@ -72,6 +74,10 @@ CREATE TABLE public.applications (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Run this separately for an existing applications table:
+ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS offer text;
+ALTER TABLE public.applications ADD COLUMN IF NOT EXISTS offer_currency text NOT NULL DEFAULT '$';
 
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 

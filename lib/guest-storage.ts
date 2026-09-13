@@ -37,6 +37,8 @@ function isValidApplication(obj: unknown): obj is Application {
     typeof a.user_id === "string" &&
     typeof a.company === "string" &&
     typeof a.role === "string" &&
+    (typeof a.offer === "string" || a.offer === null || typeof a.offer === "undefined") &&
+    (a.offer_currency === "₱" || a.offer_currency === "$" || typeof a.offer_currency === "undefined") &&
     typeof a.status === "string" &&
     ["applied", "interviewing", "offer", "rejected"].includes(a.status as string) &&
     typeof a.applied_date === "string" &&
@@ -69,6 +71,15 @@ export function getGuestApplications(): Application[] {
   }
 }
 
+export function replaceGuestApplications(applications: Application[]): void {
+  if (typeof window === "undefined") return;
+  const sessionId = getGuestSessionId();
+  const validApplications = applications.filter(
+    isValidApplication
+  ).map((application) => ({ ...application, user_id: sessionId, offer_currency: application.offer_currency ?? "₱" }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(validApplications));
+}
+
 export function addGuestApplication(formData: ApplicationFormData): Application {
   const sessionId = getGuestSessionId();
   const apps = getGuestApplications();
@@ -79,6 +90,8 @@ export function addGuestApplication(formData: ApplicationFormData): Application 
     company: sanitize(formData.company),
     role: sanitize(formData.role),
     url: formData.url ? sanitize(formData.url) : null,
+    offer: formData.offer ? sanitize(formData.offer) : null,
+    offer_currency: formData.offer_currency ?? "₱",
     status: ["applied", "interviewing", "offer", "rejected"].includes(formData.status) 
       ? formData.status 
       : "applied",
@@ -110,6 +123,8 @@ export function updateGuestApplication(id: string, formData: ApplicationFormData
       company: sanitize(formData.company),
       role: sanitize(formData.role),
       url: formData.url ? sanitize(formData.url) : null,
+      offer: formData.offer ? sanitize(formData.offer) : null,
+      offer_currency: formData.offer_currency ?? apps[index].offer_currency ?? "₱",
       status: ["applied", "interviewing", "offer", "rejected"].includes(formData.status)
         ? formData.status
         : apps[index].status,

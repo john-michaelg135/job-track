@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { User, Lock, EnvelopeSimple, ArrowLeft, CheckCircle, Warning } from "@phosphor-icons/react";
 import Link from "next/link";
+import { SettingsPanel } from "@/components/settings-panel";
 
 export default function AccountPage() {
-  const router = useRouter();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -99,6 +98,8 @@ export default function AccountPage() {
       <p className="text-sm mb-8" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
         Manage your account security and preferences.
       </p>
+
+      <SettingsPanel />
 
       {/* Email display */}
       <div

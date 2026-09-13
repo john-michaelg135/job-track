@@ -6,7 +6,9 @@ import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "@/lib/theme";
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
-import { Briefcase, Moon, Sun, Palette, SignOut, X } from "@phosphor-icons/react";
+import { Palette, SignOut, X, GearSix } from "@phosphor-icons/react";
+import { SettingsPanel } from "@/components/settings-panel";
+import { BrandMark } from "@/components/brand-mark";
 
 const ACCENTS = [
   { id: "indigo" as const, color: "#4F46E5", label: "Indigo" },
@@ -18,9 +20,10 @@ const ACCENTS = [
 
 export function DashboardNav({ email }: { email: string }) {
   const router = useRouter();
-  const { theme, accent, toggleTheme, setAccent } = useTheme();
+  const { accent, setAccent } = useTheme();
   const [showPalette, setShowPalette] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -40,12 +43,7 @@ export function DashboardNav({ email }: { email: string }) {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div
-            className="w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center"
-            style={{ background: "rgb(var(--color-primary))" }}
-          >
-            <Briefcase size={15} weight="bold" color="rgb(var(--color-on-primary))" />
-          </div>
+          <BrandMark />
           <span className="font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>
             JobTrack
           </span>
@@ -59,27 +57,14 @@ export function DashboardNav({ email }: { email: string }) {
           >
             {email}
           </Link>
-
-          {/* Theme toggle */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={toggleTheme}
-            className="p-2 rounded-[var(--radius-full)] transition-colors duration-200"
+          <button
+            onClick={() => setShowSettings(true)}
+            className="p-2 rounded-[var(--radius-full)]"
             style={{ color: "rgb(var(--color-on-surface-variant))" }}
-            title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+            title="Settings"
           >
-            <AnimatePresence mode="wait">
-              {theme === "light" ? (
-                <motion.div key="moon" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                  <Moon size={20} weight="bold" />
-                </motion.div>
-              ) : (
-                <motion.div key="sun" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                  <Sun size={20} weight="bold" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.button>
+            <GearSix size={20} weight="fill" />
+          </button>
 
           {/* Accent picker */}
           <div className="relative">
@@ -146,6 +131,8 @@ export function DashboardNav({ email }: { email: string }) {
         </div>
       </div>
     </header>
+
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
 
       {/* Logout confirmation — rendered outside header for proper centering */}
       {showLogoutConfirm && (

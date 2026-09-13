@@ -1,4 +1,5 @@
 export type ApplicationStatus = "applied" | "interviewing" | "offer" | "rejected";
+export type OfferCurrency = "₱" | "$";
 
 export interface Application {
   id: string;
@@ -6,6 +7,8 @@ export interface Application {
   company: string;
   role: string;
   url: string | null;
+  offer: string | null;
+  offer_currency: OfferCurrency;
   status: ApplicationStatus;
   applied_date: string;
   notes: string | null;
@@ -17,6 +20,8 @@ export interface ApplicationFormData {
   company: string;
   role: string;
   url?: string;
+  offer?: string;
+  offer_currency?: OfferCurrency;
   status: ApplicationStatus;
   applied_date: string;
   notes?: string;
