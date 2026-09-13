@@ -27,6 +27,7 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
   const [formData, setFormData] = useState<ApplicationFormData>({
     company: application?.company ?? "",
     role: application?.role ?? "",
+    location: application?.location ?? "",
     url: application?.url ?? "",
     offer: application?.offer ?? "",
     offer_currency: application?.offer_currency ?? "₱",
@@ -49,6 +50,7 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
     const payload = {
       company: formData.company,
       role: formData.role,
+      location: formData.location || null,
       url: formData.url || null,
       offer: formData.offer || null,
       offer_currency: formData.offer_currency || "₱",
@@ -174,6 +176,18 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
               className={inputClass}
               style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
               placeholder="e.g. Senior Frontend Engineer"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Location</label>
+            <input
+              type="text"
+              value={formData.location}
+              onChange={(e) => handleChange("location", e.target.value)}
+              className={inputClass}
+              style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
+              placeholder="e.g. Remote or New York"
             />
           </div>
 

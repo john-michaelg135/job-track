@@ -14,6 +14,7 @@ export type ApplicationMutation =
 interface ApplicationMutationValues {
   company: string;
   role: string;
+  location: string | null;
   url: string | null;
   offer: string | null;
   offer_currency: "₱" | "$";

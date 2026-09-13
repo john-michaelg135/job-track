@@ -83,6 +83,7 @@ export function SettingsPanel({ guest = false, onClose, onGuestBannerChange, onL
         const applications = parsed.applications.map((application) => ({
           company: application.company,
           role: application.role,
+          location: application.location,
           url: application.url,
           offer: application.offer,
           offer_currency: application.offer_currency,

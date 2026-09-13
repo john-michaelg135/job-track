@@ -35,6 +35,12 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user && request.nextUrl.pathname === "/" && request.cookies.get("jt-guest-mode")?.value === "true") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/guest";
+    return NextResponse.redirect(url);
+  }
+
   // Redirect unauthenticated users away from protected routes
   if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
     const url = request.nextUrl.clone();

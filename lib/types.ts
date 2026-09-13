@@ -6,6 +6,7 @@ export interface Application {
   user_id: string;
   company: string;
   role: string;
+  location: string | null;
   url: string | null;
   offer: string | null;
   offer_currency: OfferCurrency;
@@ -19,6 +20,7 @@ export interface Application {
 export interface ApplicationFormData {
   company: string;
   role: string;
+  location?: string;
   url?: string;
   offer?: string;
   offer_currency?: OfferCurrency;

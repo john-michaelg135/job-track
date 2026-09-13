@@ -37,6 +37,7 @@ function isValidApplication(obj: unknown): obj is Application {
     typeof a.user_id === "string" &&
     typeof a.company === "string" &&
     typeof a.role === "string" &&
+    (typeof a.location === "string" || a.location === null || typeof a.location === "undefined") &&
     (typeof a.offer === "string" || a.offer === null || typeof a.offer === "undefined") &&
     (a.offer_currency === "₱" || a.offer_currency === "$" || typeof a.offer_currency === "undefined") &&
     typeof a.status === "string" &&
@@ -89,6 +90,7 @@ export function addGuestApplication(formData: ApplicationFormData): Application 
     user_id: sessionId, // Scoped to this guest session
     company: sanitize(formData.company),
     role: sanitize(formData.role),
+    location: formData.location ? sanitize(formData.location) : null,
     url: formData.url ? sanitize(formData.url) : null,
     offer: formData.offer ? sanitize(formData.offer) : null,
     offer_currency: formData.offer_currency ?? "₱",
@@ -122,6 +124,7 @@ export function updateGuestApplication(id: string, formData: ApplicationFormData
       ...apps[index],
       company: sanitize(formData.company),
       role: sanitize(formData.role),
+      location: formData.location ? sanitize(formData.location) : null,
       url: formData.url ? sanitize(formData.url) : null,
       offer: formData.offer ? sanitize(formData.offer) : null,
       offer_currency: formData.offer_currency ?? apps[index].offer_currency ?? "₱",
@@ -162,8 +165,10 @@ export function isGuestMode(): boolean {
 export function setGuestMode(enabled: boolean): void {
   if (enabled) {
     localStorage.setItem("jt-guest-mode", "true");
+    document.cookie = "jt-guest-mode=true; Path=/; Max-Age=31536000; SameSite=Lax";
   } else {
     localStorage.removeItem("jt-guest-mode");
+    document.cookie = "jt-guest-mode=; Path=/; Max-Age=0; SameSite=Lax";
   }
 }
 

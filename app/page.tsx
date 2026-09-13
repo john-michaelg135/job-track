@@ -2,10 +2,29 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { ArrowRight, ShieldCheck, FunnelSimple, Lightning } from "@phosphor-icons/react";
 import { BrandMark } from "@/components/brand-mark";
+import { isGuestMode } from "@/lib/guest-storage";
 
 export default function Home() {
+  const router = useRouter();
+  const [checkedGuestMode, setCheckedGuestMode] = useState(false);
+
+  useEffect(() => {
+    const checkGuestMode = window.setTimeout(() => {
+      if (isGuestMode()) {
+        router.replace("/guest");
+      } else {
+        setCheckedGuestMode(true);
+      }
+    }, 0);
+    return () => window.clearTimeout(checkGuestMode);
+  }, [router]);
+
+  if (!checkedGuestMode) return null;
+
   return (
     <div className="min-h-[100dvh] flex flex-col relative">
       {/* Nav */}

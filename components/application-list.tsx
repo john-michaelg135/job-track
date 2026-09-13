@@ -12,6 +12,8 @@ import { ClassicApplicationTable } from "./classic-application-table";
 import { ConfirmDialog } from "./confirm-dialog";
 import { isNetworkError, queueApplicationMutation } from "@/lib/offline";
 import { useModalBack } from "@/lib/use-modal-back";
+import { LongPressSurface } from "./long-press-surface";
+import { ApplicationDetailsPopover } from "./application-details-popover";
 
 const FILTER_OPTIONS: { value: ApplicationStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -33,6 +35,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
   const [classicLayout, setClassicLayout] = useState(false);
   const [sortAscending, setSortAscending] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [details, setDetails] = useState<Application | null>(null);
 
   useEffect(() => {
     const loadPreferences = (event?: Event) => {
@@ -164,8 +167,8 @@ export function ApplicationList({ applications }: ApplicationListProps) {
       ) : (
         <div className="space-y-3">
             {filtered.map((app) => (
+              <LongPressSurface key={app.id} onLongPress={() => setDetails(app)}>
               <motion.div
-                key={app.id}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
@@ -229,6 +232,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
                   </div>
                 </div>
               </motion.div>
+              </LongPressSurface>
             ))}
         </div>
       )}
@@ -236,6 +240,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
       {/* Form Modal */}
       {showForm && <ApplicationForm application={editing} onClose={handleClose} />}
       <ConfirmDialog open={deleteId !== null} title="Delete application?" message="This application will be permanently removed." onConfirm={confirmDelete} onClose={() => setDeleteId(null)} />
+      {details && <ApplicationDetailsPopover application={details} onClose={() => setDetails(null)} />}
     </>
   );
 }

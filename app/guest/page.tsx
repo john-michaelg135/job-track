@@ -13,6 +13,8 @@ import { SettingsPanel } from "@/components/settings-panel";
 import { ClassicApplicationTable } from "@/components/classic-application-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useModalBack } from "@/lib/use-modal-back";
+import { LongPressSurface } from "@/components/long-press-surface";
+import { ApplicationDetailsPopover } from "@/components/application-details-popover";
 import { BrandMark } from "@/components/brand-mark";
 
 const FILTER_OPTIONS: { value: ApplicationStatus | "all"; label: string }[] = [
@@ -44,6 +46,7 @@ export default function GuestDashboard() {
   const [classicLayout, setClassicLayout] = useState(false);
   const [sortAscending, setSortAscending] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [details, setDetails] = useState<Application | null>(null);
 
   useModalBack(showForm, () => { setShowForm(false); setEditing(undefined); });
   useModalBack(showSettings, () => setShowSettings(false));
@@ -256,8 +259,8 @@ export default function GuestDashboard() {
         ) : (
           <div className="space-y-3">
             {filtered.map((app) => (
+              <LongPressSurface key={app.id} onLongPress={() => setDetails(app)}>
               <div
-                key={app.id}
                 className="p-4 sm:p-5 rounded-[var(--radius-xl)] border transition-shadow duration-200 hover:shadow-md"
                 data-cursor-morph
                 style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))" }}
@@ -290,6 +293,7 @@ export default function GuestDashboard() {
                   </div>
                 </div>
               </div>
+              </LongPressSurface>
             ))}
           </div>
         )}
@@ -304,6 +308,7 @@ export default function GuestDashboard() {
         />
       )}
       <ConfirmDialog open={deleteId !== null} title="Delete application?" message="This application will be permanently removed." onConfirm={handleDelete} onClose={() => setDeleteId(null)} />
+      {details && <ApplicationDetailsPopover application={details} onClose={() => setDetails(null)} />}
     </div>
   );
 }
@@ -313,6 +318,7 @@ function GuestForm({ application, onSubmit, onClose }: { application?: Applicati
   const [formData, setFormData] = useState<ApplicationFormData>({
     company: application?.company ?? "",
     role: application?.role ?? "",
+    location: application?.location ?? "",
     url: application?.url ?? "",
     offer: application?.offer ?? "",
     offer_currency: application?.offer_currency ?? "₱",
@@ -340,6 +346,7 @@ function GuestForm({ application, onSubmit, onClose }: { application?: Applicati
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-3">
           <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Company *</label><input type="text" required value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className={inputClass} style={inputStyle} placeholder="e.g. Acme Corp" /></div>
           <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Role *</label><input type="text" required value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className={inputClass} style={inputStyle} placeholder="e.g. Frontend Engineer" /></div>
+          <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Location</label><input type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className={inputClass} style={inputStyle} placeholder="e.g. Remote or New York" /></div>
           <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Job URL</label><input type="url" value={formData.url} onChange={(e) => setFormData({ ...formData, url: e.target.value })} className={inputClass} style={inputStyle} placeholder="https://..." /></div>
           <div><label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Offer</label><div className="grid grid-cols-[minmax(0,1fr)_7rem] gap-2"><input type="text" inputMode="numeric" pattern="[0-9]*" value={formData.offer} onChange={(e) => setFormData({ ...formData, offer: e.target.value.replace(/\D/g, "") })} className={`${inputClass} min-w-0`} style={inputStyle} placeholder="e.g. 120000" aria-label="Offer amount" /><div className="relative min-w-0"><select value={formData.offer_currency} onChange={(e) => setFormData({ ...formData, offer_currency: e.target.value as ApplicationFormData["offer_currency"] })} className={`${inputClass} min-w-0 appearance-none pr-10`} style={inputStyle} aria-label="Offer currency"><option value="₱">₱</option><option value="$">$</option></select><CaretDown size={16} weight="bold" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "rgb(var(--color-on-surface-variant))" }} /></div></div></div>
           <div className="grid grid-cols-2 gap-4">
