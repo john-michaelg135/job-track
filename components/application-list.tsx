@@ -163,7 +163,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
           )}
         </motion.div>
       ) : classicLayout ? (
-        <ClassicApplicationTable applications={filtered} onEdit={handleEdit} onDelete={setDeleteId} />
+        <ClassicApplicationTable applications={filtered} onEdit={handleEdit} onDelete={setDeleteId} onDetails={setDetails} />
       ) : (
         <div className="space-y-3">
             {filtered.map((app) => (

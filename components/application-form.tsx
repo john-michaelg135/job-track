@@ -206,7 +206,7 @@ export function ApplicationForm({ application, onClose }: ApplicationFormProps) 
           <div>
             <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Offer</label>
             <div className="grid grid-cols-[minmax(0,1fr)_7rem] gap-2">
-              <input type="text" inputMode="numeric" pattern="[0-9]*" value={formData.offer} onChange={(e) => handleChange("offer", e.target.value.replace(/\D/g, ""))} className={`${inputClass} min-w-0`} style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }} placeholder="e.g. 120000" aria-label="Offer amount" />
+              <input type="text" inputMode="text" pattern="[0-9 -]*" value={formData.offer} onChange={(e) => handleChange("offer", e.target.value.replace(/[^0-9 -]/g, ""))} className={`${inputClass} min-w-0`} style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }} placeholder="e.g. 120000 or 100 - 120k" aria-label="Offer amount" />
               <div className="relative min-w-0">
                 <select value={formData.offer_currency} onChange={(e) => handleChange("offer_currency", e.target.value)} className={`${inputClass} min-w-0 appearance-none pr-10`} style={{ background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }} aria-label="Offer currency"><option value="₱">₱</option><option value="$">$</option></select>
                 <CaretDown size={16} weight="bold" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "rgb(var(--color-on-surface-variant))" }} />
