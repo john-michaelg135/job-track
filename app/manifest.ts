@@ -18,8 +18,10 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   return {
     name: "JobTrack",
     short_name: "JobTrack",
+    id: "/",
     description: "Track your job applications in one place.",
-    start_url: "/dashboard",
+    start_url: "/",
+    scope: "/",
     display: "standalone",
     background_color: "#fafafc",
     theme_color: color,

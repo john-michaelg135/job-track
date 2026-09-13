@@ -1,25 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ArrowClockwise, CloudSlash } from "@phosphor-icons/react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowClockwise, CloudSlash, WifiHigh } from "@phosphor-icons/react";
 import { replayQueuedMutations } from "@/lib/offline";
 
 export function OfflineManager() {
-  const [offline, setOffline] = useState(() => typeof navigator !== "undefined" && !navigator.onLine);
+  const [connectionNotice, setConnectionNotice] = useState<"online" | "offline" | null>(null);
   const [update, setUpdate] = useState<ServiceWorkerRegistration | null>(null);
+  const noticeTimer = useRef<number | null>(null);
 
   useEffect(() => {
+    const showConnectionNotice = (status: "online" | "offline") => {
+      setConnectionNotice(status);
+      if (noticeTimer.current !== null) window.clearTimeout(noticeTimer.current);
+      noticeTimer.current = window.setTimeout(() => setConnectionNotice(null), 4000);
+    };
     const handleOnline = () => {
-      setOffline(false);
+      showConnectionNotice("online");
       void replayQueuedMutations().then(() => window.dispatchEvent(new Event("jt-offline-sync")));
     };
-    const handleOffline = () => setOffline(true);
+    const handleOffline = () => showConnectionNotice("offline");
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
     if (!("serviceWorker" in navigator)) return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      if (noticeTimer.current !== null) window.clearTimeout(noticeTimer.current);
     };
 
     let registration: ServiceWorkerRegistration | undefined;
@@ -43,6 +50,7 @@ export function OfflineManager() {
       void registration;
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      if (noticeTimer.current !== null) window.clearTimeout(noticeTimer.current);
       navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
     };
   }, []);
@@ -53,7 +61,7 @@ export function OfflineManager() {
 
   return (
     <>
-      {offline && <div className="fixed bottom-4 left-4 z-[60] flex items-center gap-2 rounded-[var(--radius-full)] px-4 py-2 text-sm shadow-lg" style={{ background: "rgb(var(--color-on-surface))", color: "rgb(var(--color-surface))" }}><CloudSlash size={16} /> Offline mode</div>}
+      {connectionNotice && <div className="fixed bottom-4 left-4 z-[60] flex items-center gap-2 rounded-[var(--radius-full)] px-4 py-2 text-sm shadow-lg" style={{ background: connectionNotice === "offline" ? "rgb(var(--color-on-surface))" : "rgb(var(--color-success))", color: connectionNotice === "offline" ? "rgb(var(--color-surface))" : "white" }}>{connectionNotice === "offline" ? <CloudSlash size={16} /> : <WifiHigh size={16} />} {connectionNotice === "offline" ? "Offline mode" : "Back online"}</div>}
       {update && <div className="fixed bottom-4 right-4 z-[60] flex items-center gap-3 rounded-[var(--radius-lg)] border px-4 py-3 text-sm shadow-lg" style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))", color: "rgb(var(--color-on-surface))" }}><span>New version available</span><button onClick={applyUpdate} className="inline-flex items-center gap-1.5 rounded-[var(--radius-full)] px-3 py-1.5 font-medium" style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}><ArrowClockwise size={15} /> Reload</button></div>}
     </>
   );
