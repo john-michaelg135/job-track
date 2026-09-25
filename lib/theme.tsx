@@ -56,8 +56,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return;
-    document.documentElement.setAttribute("data-theme", theme === "auto" ? systemTheme : theme);
+    const resolvedTheme = theme === "auto" ? systemTheme : theme;
+    document.documentElement.setAttribute("data-theme", resolvedTheme);
     document.documentElement.setAttribute("data-accent", accent);
+    
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.setAttribute('name', 'theme-color');
+      document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.setAttribute('content', resolvedTheme === "dark" ? "#1c2026" : "#f4f6f8");
     localStorage.setItem("jt-theme", theme);
     localStorage.setItem("jt-accent", accent);
     document.cookie = `jt-theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;

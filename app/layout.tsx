@@ -30,9 +30,19 @@ export const metadata: Metadata = {
 
 export async function generateViewport(): Promise<Viewport> {
   const theme = (await cookies()).get("jt-theme")?.value;
-  return {
-    themeColor: theme === "dark" ? "#1c2026" : "#f4f6f8",
-  };
+  
+  if (theme === "dark") {
+    return { themeColor: "#1c2026" };
+  } else if (theme === "light") {
+    return { themeColor: "#f4f6f8" };
+  } else {
+    return {
+      themeColor: [
+        { media: "(prefers-color-scheme: light)", color: "#f4f6f8" },
+        { media: "(prefers-color-scheme: dark)", color: "#1c2026" },
+      ],
+    };
+  }
 }
 
 export default function RootLayout({
