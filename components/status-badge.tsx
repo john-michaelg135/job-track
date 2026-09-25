@@ -29,6 +29,12 @@ const statusConfig: Record<ApplicationStatus, { label: string; light: { bg: stri
     dark: { bg: "rgba(239, 68, 68, 0.15)", text: "#FCA5A5" },
     dot: "#EF4444",
   },
+  unresponsive: {
+    label: "Unresponsive",
+    light: { bg: "#F3F4F6", text: "#374151" },
+    dark: { bg: "rgba(107, 114, 128, 0.15)", text: "#9CA3AF" },
+    dot: "#6B7280",
+  },
 };
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {

@@ -122,29 +122,8 @@ export function CursorGlow() {
     setIsMobile(mobile);
 
     if (mobile) {
-      // Mobile: show on tap, then fade after delay
-      function handleTouch(e: TouchEvent) {
-        const touch = e.touches[0] || e.changedTouches[0];
-        if (!touch) return;
-
-        const target = getMorphTarget(document.elementFromPoint(touch.clientX, touch.clientY));
-        if (target) {
-          morphToElement(target);
-
-          // Auto-fade after 600ms
-          if (fadeTimer.current) clearTimeout(fadeTimer.current);
-          fadeTimer.current = setTimeout(() => {
-            opacity.set(0);
-            resetBlob();
-          }, 600);
-        }
-      }
-
-      window.addEventListener("touchstart", handleTouch, { passive: true });
-      return () => {
-        window.removeEventListener("touchstart", handleTouch);
-        if (fadeTimer.current) clearTimeout(fadeTimer.current);
-      };
+      // Mobile: cursor morphing effect is disabled
+      return;
     } else {
       // Desktop: follow mouse
       function handleMouseMove(e: MouseEvent) {
@@ -186,6 +165,8 @@ export function CursorGlow() {
       };
     }
   }, [mouseX, mouseY, width, height, radius, opacity, getMorphTarget, morphToElement, resetBlob, isMobile]);
+
+  if (isMobile) return null;
 
   return (
     <motion.div
