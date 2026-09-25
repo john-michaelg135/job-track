@@ -1,107 +1,306 @@
 @import "tailwindcss";
 
-/* Material You Theme Variables */
+/* ─── Neumorphic Tech Schematic — Design System ────────────────────────────── */
 :root {
-  /* Light Mode - Default accent: Indigo */
-  --color-surface: 250 250 252;
-  --color-surface-container: 243 243 248;
-  --color-surface-container-high: 236 236 242;
-  --color-surface-variant: 228 228 236;
-  --color-on-surface: 28 28 30;
-  --color-on-surface-variant: 70 70 80;
-  --color-outline: 200 200 210;
-  --color-outline-variant: 225 225 232;
-  --color-primary: 79 70 229;
+  /* ── Surface ──────────────────────────────────────────────────────────── */
+  --color-surface: 244 246 248;           /* #F4F6F8  — background */
+  --color-surface-container: 240 243 247; /* slightly darker for subtle contrast */
+  --color-surface-container-high: 232 238 244; /* table headers */
+  --color-surface-variant: 228 233 241;   /* #E4E9F1  — inset bg (more contrast) */
+
+  /* Text */
+  --color-on-surface: 44 44 44;           /* #2C2C2C  — primary text */
+  --color-on-surface-variant: 110 115 128; /* muted text */
+
+  /* Borders / Outlines */
+  --color-outline: 200 210 222;
+  --color-outline-variant: 209 217 230;   /* #D1D9E6  — shadow dark also */
+
+  /* Accent — coral-red #EB5757 (default) */
+  --color-primary: 235 87 87;             /* #EB5757 */
   --color-on-primary: 255 255 255;
-  --color-primary-container: 224 221 255;
-  --color-on-primary-container: 30 20 100;
-  --color-secondary: 100 100 140;
-  --color-tertiary: 120 80 160;
+  --color-primary-container: 253 226 226; /* tinted accent bg */
+  --color-on-primary-container: 140 30 30;
+  --gradient-primary: linear-gradient(135deg, #FF8080 0%, #EB5757 55%, #D44040 100%);
+  --gradient-primary-glow: rgb(235 87 87 / 0.35);
+
+  /* Semantic */
+  --color-secondary: 100 120 150;
+  --color-tertiary: 100 130 180;
   --color-error: 220 38 38;
   --color-success: 22 163 74;
-  --color-warning: 234 179 8;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --color-warning: 201 142 0;
+
+  /* ── Radius Scale ─────────────────────────────────────────────────────── */
+  --radius-sm: 20px;   /* was 8px  — spec: 20px */
+  --radius-md: 20px;   /* was 12px — spec: 20px (base for cards/inputs) */
+  --radius-lg: 40px;   /* was 16px — spec: 40px */
+  --radius-xl: 20px;   /* modals/sheets — keeping consistent with spec sm */
   --radius-full: 9999px;
-  --shadow-elevation-1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-elevation-2: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-elevation-3: 0 8px 24px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.05);
+
+  /* ── Neumorphic Shadow System ─────────────────────────────────────────── */
+  /* Extruded (raised) — convex surface effect. Darker shadow for more visible depth. */
+  --neu-shadow: 8px 8px 20px #b8c4d4, -8px -8px 20px #ffffff;
+  --neu-shadow-sm: 4px 4px 12px #bcc8d8, -4px -4px 12px #ffffff;
+  --neu-shadow-lg: 14px 14px 30px #aabcce, -14px -14px 30px #ffffff;
+
+  /* Inset — concave / pressed */
+  --neu-inset: inset 4px 4px 12px #b8c4d4, inset -4px -4px 12px #ffffff;
+  --neu-inset-sm: inset 2px 2px 7px #bcc8d8, inset -2px -2px 7px #ffffff;
+
+  /* Active / pressed state */
+  --neu-pressed: inset 3px 3px 8px #aabcce, inset -1px -1px 4px #ffffff;
+
+  /* Primary Accent Elements */
+  --neu-shadow-primary: 4px 4px 10px var(--gradient-primary-glow), -3px -3px 8px rgba(255,255,255,0.6);
+  --neu-shadow-primary-lg: 5px 5px 14px var(--gradient-primary-glow), -4px -4px 10px rgba(255,255,255,0.7);
+  --neu-inset-primary: inset 3px 3px 8px rgba(0,0,0,0.2), inset -2px -2px 4px rgba(255,255,255,0.15);
+
+  /* Legacy elevation tokens (fallback for components not yet updated) */
+  --shadow-elevation-1: var(--neu-shadow-sm);
+  --shadow-elevation-2: var(--neu-shadow);
+  --shadow-elevation-3: var(--neu-shadow-lg);
+
+  /* ── Transition Curves ────────────────────────────────────────────────── */
   --transition-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
+/* ── Dark Mode ────────────────────────────────────────────────────────────── */
+/* Spec: ◐ Part — dark is supported but simplified (no full neumorphism) */
 [data-theme="dark"] {
-  --color-surface: 18 18 22;
-  --color-surface-container: 28 28 34;
-  --color-surface-container-high: 38 38 46;
-  --color-surface-variant: 48 48 58;
-  --color-on-surface: 230 230 235;
-  --color-on-surface-variant: 170 170 185;
-  --color-outline: 60 60 75;
-  --color-outline-variant: 45 45 58;
-  --color-primary: 165 155 255;
-  --color-on-primary: 30 20 100;
-  --color-primary-container: 55 45 140;
-  --color-on-primary-container: 224 221 255;
-  --color-secondary: 160 160 200;
-  --color-tertiary: 180 150 220;
+  --color-surface: 28 32 38;
+  --color-surface-container: 34 38 46;
+  --color-surface-container-high: 42 47 56;
+  --color-surface-variant: 48 54 64;
+  --color-on-surface: 224 228 234;
+  --color-on-surface-variant: 148 156 172;
+  --color-outline: 60 68 84;
+  --color-outline-variant: 50 58 72;
+  --color-primary: 240 110 110;           /* slightly lighter for dark */
+  --color-on-primary: 255 255 255;
+  --color-primary-container: 90 30 30;
+  --color-on-primary-container: 253 210 210;
+  --color-secondary: 140 160 200;
+  --color-tertiary: 140 170 220;
   --color-error: 248 113 113;
   --color-success: 74 222 128;
   --color-warning: 250 204 21;
-  --shadow-elevation-1: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-elevation-2: 0 4px 12px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
-  --shadow-elevation-3: 0 8px 24px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.25);
+
+  /* Dark mode: flat shadows (neumorphism needs light bg to work) */
+  --neu-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.25);
+  --neu-shadow-sm: 0 2px 8px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.2);
+  --neu-shadow-lg: 0 8px 28px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+  --neu-inset: inset 0 2px 8px rgba(0,0,0,0.4), inset 0 -1px 4px rgba(255,255,255,0.03);
+  --neu-inset-sm: inset 0 1px 4px rgba(0,0,0,0.35), inset 0 -1px 2px rgba(255,255,255,0.03);
+  --neu-pressed: inset 0 2px 8px rgba(0,0,0,0.5);
+
+  --neu-shadow-primary: 0 4px 12px var(--gradient-primary-glow), 0 1px 3px rgba(0,0,0,0.3);
+  --neu-shadow-primary-lg: 0 6px 16px var(--gradient-primary-glow), 0 2px 4px rgba(0,0,0,0.4);
+  --neu-inset-primary: inset 0 2px 8px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.03);
+
+  --shadow-elevation-1: var(--neu-shadow-sm);
+  --shadow-elevation-2: var(--neu-shadow);
+  --shadow-elevation-3: var(--neu-shadow-lg);
+  --gradient-primary: linear-gradient(135deg, #FF8C6B 0%, #EB5757 55%, #CC3636 100%);
+  --gradient-primary-glow: rgb(235 87 87 / 0.4);
 }
 
-/* Accent Theme Overrides */
+/* ── Accent overrides — all accent colors resolve to primary token ──────── */
+/* Coral (explicit alias for :root default) */
+[data-accent="coral"] {
+  --color-primary: 235 87 87;
+  --color-primary-container: 253 226 226;
+  --color-on-primary-container: 140 30 30;
+  --gradient-primary: linear-gradient(135deg, #FF8080 0%, #EB5757 55%, #D44040 100%);
+  --gradient-primary-glow: rgb(235 87 87 / 0.35);
+}
+[data-accent="coral"][data-theme="dark"] {
+  --color-primary: 248 120 120;
+  --color-primary-container: 90 30 30;
+  --color-on-primary-container: 253 210 210;
+  --gradient-primary: linear-gradient(135deg, #FF9090 0%, #F06060 55%, #D84040 100%);
+  --gradient-primary-glow: rgb(248 120 120 / 0.4);
+}
+
+/* Indigo */
+[data-accent="indigo"] {
+  --color-primary: 99 102 241;
+  --color-primary-container: 224 231 255;
+  --color-on-primary-container: 50 55 140;
+  --gradient-primary: linear-gradient(135deg, #A5B4FC 0%, #6366F1 55%, #4338CA 100%);
+  --gradient-primary-glow: rgb(99 102 241 / 0.35);
+}
+[data-accent="indigo"][data-theme="dark"] {
+  --color-primary: 165 180 252;
+  --color-primary-container: 55 60 150;
+  --color-on-primary-container: 224 231 255;
+  --gradient-primary: linear-gradient(135deg, #C7D2FE 0%, #818CF8 55%, #6366F1 100%);
+  --gradient-primary-glow: rgb(165 180 252 / 0.4);
+}
+
+/* Teal */
 [data-accent="teal"] {
   --color-primary: 13 148 136;
   --color-primary-container: 204 251 241;
   --color-on-primary-container: 5 80 72;
+  --gradient-primary: linear-gradient(135deg, #5EEAD4 0%, #14B8A6 55%, #0D9488 100%);
+  --gradient-primary-glow: rgb(13 148 136 / 0.35);
 }
 [data-accent="teal"][data-theme="dark"] {
   --color-primary: 94 234 212;
   --color-primary-container: 17 94 89;
   --color-on-primary-container: 204 251 241;
+  --gradient-primary: linear-gradient(135deg, #99F6E4 0%, #5EEAD4 55%, #2DD4BF 100%);
+  --gradient-primary-glow: rgb(94 234 212 / 0.4);
 }
 
+/* Rose */
 [data-accent="rose"] {
   --color-primary: 225 29 72;
   --color-primary-container: 255 228 230;
   --color-on-primary-container: 120 10 35;
+  --gradient-primary: linear-gradient(135deg, #FB7185 0%, #F43F5E 55%, #E11D48 100%);
+  --gradient-primary-glow: rgb(225 29 72 / 0.35);
 }
 [data-accent="rose"][data-theme="dark"] {
   --color-primary: 251 113 133;
   --color-primary-container: 136 19 55;
   --color-on-primary-container: 255 228 230;
+  --gradient-primary: linear-gradient(135deg, #FDA4AF 0%, #FB7185 55%, #F43F5E 100%);
+  --gradient-primary-glow: rgb(251 113 133 / 0.4);
 }
 
+/* Amber */
 [data-accent="amber"] {
   --color-primary: 180 83 9;
   --color-primary-container: 254 243 199;
   --color-on-primary-container: 100 45 5;
+  --gradient-primary: linear-gradient(135deg, #FCD34D 0%, #F59E0B 55%, #B45309 100%);
+  --gradient-primary-glow: rgb(180 83 9 / 0.35);
 }
 [data-accent="amber"][data-theme="dark"] {
   --color-primary: 251 191 36;
   --color-primary-container: 120 53 15;
   --color-on-primary-container: 254 243 199;
+  --gradient-primary: linear-gradient(135deg, #FDE68A 0%, #FCD34D 55%, #F59E0B 100%);
+  --gradient-primary-glow: rgb(251 191 36 / 0.4);
 }
 
+/* Emerald */
 [data-accent="emerald"] {
   --color-primary: 5 150 105;
   --color-primary-container: 209 250 229;
   --color-on-primary-container: 5 80 50;
+  --gradient-primary: linear-gradient(135deg, #6EE7B7 0%, #34D399 55%, #059669 100%);
+  --gradient-primary-glow: rgb(5 150 105 / 0.35);
 }
 [data-accent="emerald"][data-theme="dark"] {
   --color-primary: 52 211 153;
   --color-primary-container: 6 95 70;
   --color-on-primary-container: 209 250 229;
+  --gradient-primary: linear-gradient(135deg, #A7F3D0 0%, #6EE7B7 55%, #34D399 100%);
+  --gradient-primary-glow: rgb(52 211 153 / 0.4);
 }
 
-/* Base Styles */
+/* Pink */
+[data-accent="pink"] {
+  --color-primary: 236 72 153;
+  --color-primary-container: 252 231 243;
+  --color-on-primary-container: 131 24 67;
+  --gradient-primary: linear-gradient(135deg, #F472B6 0%, #EC4899 55%, #DB2777 100%);
+  --gradient-primary-glow: rgb(236 72 153 / 0.35);
+}
+[data-accent="pink"][data-theme="dark"] {
+  --color-primary: 244 114 182;
+  --color-primary-container: 157 23 77;
+  --color-on-primary-container: 252 231 243;
+  --gradient-primary: linear-gradient(135deg, #F9A8D4 0%, #F472B6 55%, #EC4899 100%);
+  --gradient-primary-glow: rgb(244 114 182 / 0.4);
+}
+
+/* Violet */
+[data-accent="violet"] {
+  --color-primary: 139 92 246;
+  --color-primary-container: 237 233 254;
+  --color-on-primary-container: 76 29 149;
+  --gradient-primary: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 55%, #7C3AED 100%);
+  --gradient-primary-glow: rgb(139 92 246 / 0.35);
+}
+[data-accent="violet"][data-theme="dark"] {
+  --color-primary: 167 139 250;
+  --color-primary-container: 91 33 182;
+  --color-on-primary-container: 237 233 254;
+  --gradient-primary: linear-gradient(135deg, #C4B5FD 0%, #A78BFA 55%, #8B5CF6 100%);
+  --gradient-primary-glow: rgb(167 139 250 / 0.4);
+}
+
+/* Cyan */
+[data-accent="cyan"] {
+  --color-primary: 6 182 212;
+  --color-primary-container: 207 250 254;
+  --color-on-primary-container: 8 51 68;
+  --gradient-primary: linear-gradient(135deg, #22D3EE 0%, #06B6D4 55%, #0891B2 100%);
+  --gradient-primary-glow: rgb(6 182 212 / 0.35);
+}
+[data-accent="cyan"][data-theme="dark"] {
+  --color-primary: 34 211 238;
+  --color-primary-container: 22 78 99;
+  --color-on-primary-container: 207 250 254;
+  --gradient-primary: linear-gradient(135deg, #67E8F9 0%, #22D3EE 55%, #06B6D4 100%);
+  --gradient-primary-glow: rgb(34 211 238 / 0.4);
+}
+
+/* Lime */
+[data-accent="lime"] {
+  --color-primary: 132 204 22;
+  --color-primary-container: 236 252 203;
+  --color-on-primary-container: 63 98 18;
+  --gradient-primary: linear-gradient(135deg, #A3E635 0%, #84CC16 55%, #65A30D 100%);
+  --gradient-primary-glow: rgb(132 204 22 / 0.35);
+}
+[data-accent="lime"][data-theme="dark"] {
+  --color-primary: 163 230 53;
+  --color-primary-container: 77 124 15;
+  --color-on-primary-container: 236 252 203;
+  --gradient-primary: linear-gradient(135deg, #BEF264 0%, #A3E635 55%, #84CC16 100%);
+  --gradient-primary-glow: rgb(163 230 53 / 0.4);
+}
+
+/* Fuchsia */
+[data-accent="fuchsia"] {
+  --color-primary: 217 70 239;
+  --color-primary-container: 250 232 255;
+  --color-on-primary-container: 112 26 117;
+  --gradient-primary: linear-gradient(135deg, #E879F9 0%, #D946EF 55%, #C026D3 100%);
+  --gradient-primary-glow: rgb(217 70 239 / 0.35);
+}
+[data-accent="fuchsia"][data-theme="dark"] {
+  --color-primary: 232 121 249;
+  --color-primary-container: 134 25 143;
+  --color-on-primary-container: 250 232 255;
+  --gradient-primary: linear-gradient(135deg, #F0ABFC 0%, #E879F9 55%, #D946EF 100%);
+  --gradient-primary-glow: rgb(232 121 249 / 0.4);
+}
+
+/* Salmon */
+[data-accent="salmon"] {
+  --color-primary: 255 145 164;
+  --color-primary-container: 255 228 232;
+  --color-on-primary-container: 153 15 41;
+  --gradient-primary: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 55%, #FF7088 100%);
+  --gradient-primary-glow: rgb(255 145 164 / 0.35);
+}
+[data-accent="salmon"][data-theme="dark"] {
+  --color-primary: 255 182 193;
+  --color-primary-container: 178 34 60;
+  --color-on-primary-container: 255 228 232;
+  --gradient-primary: linear-gradient(135deg, #FFD1D8 0%, #FFB6C1 55%, #FF91A4 100%);
+  --gradient-primary-glow: rgb(255 182 193 / 0.4);
+}
+
+/* ── Base Styles ────────────────────────────────────────────────────────── */
 * {
   -webkit-tap-highlight-color: transparent;
 }
@@ -115,56 +314,86 @@ html {
 body {
   background-color: rgb(var(--color-surface));
   color: rgb(var(--color-on-surface));
+  font-family: 'Roboto', 'Inter', sans-serif;
   transition: background-color 0.4s ease, color 0.3s ease;
 }
 
-/* Smooth scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgb(var(--color-outline));
-  border-radius: var(--radius-full);
+/* ── Neumorphic Component Utilities ─────────────────────────────────────── */
+.neu-raised {
+  box-shadow: var(--neu-shadow);
+  background: rgb(var(--color-surface));
+  border: none;
 }
 
-/* Focus ring */
+.neu-raised-sm {
+  box-shadow: var(--neu-shadow-sm);
+  background: rgb(var(--color-surface));
+  border: none;
+}
+
+.neu-raised-lg {
+  box-shadow: var(--neu-shadow-lg);
+  background: rgb(var(--color-surface));
+  border: none;
+}
+
+.neu-inset {
+  box-shadow: var(--neu-inset);
+  background: rgb(var(--color-surface-variant));
+  border: none;
+}
+
+.neu-inset-sm {
+  box-shadow: var(--neu-inset-sm);
+  background: rgb(var(--color-surface-variant));
+  border: none;
+}
+
+.neu-pressed {
+  box-shadow: var(--neu-pressed);
+  background: rgb(var(--color-surface-variant));
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgb(var(--color-outline)); border-radius: var(--radius-full); }
+
+/* ── Focus ring ─────────────────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid rgb(var(--color-primary));
-  outline-offset: 2px;
+  outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
 
-/* Selection */
+/* ── Selection ───────────────────────────────────────────────────────────── */
 ::selection {
-  background-color: rgb(var(--color-primary) / 0.2);
+  background-color: rgb(var(--color-primary) / 0.18);
   color: rgb(var(--color-on-surface));
 }
 
-/* Hide scrollbar for filter tabs on mobile */
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-none {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* ── Scrollbar-none utility ──────────────────────────────────────────────── */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Input neumorphic inset ─────────────────────────────────────────────── */
+input, textarea, select {
+  transition: box-shadow 0.2s ease, background 0.2s ease;
 }
 
-/* Modal animations — CSS-native for 120fps */
+/* ── Modal animations ────────────────────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
 @keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+  from { opacity: 0; transform: scale(0.95) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Schematic grid decoration ─────────────────────────────────────────── */
+@keyframes schematicPulse {
+  0%, 100% { opacity: 0.025; }
+  50% { opacity: 0.05; }
 }

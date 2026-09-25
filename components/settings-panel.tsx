@@ -10,11 +10,18 @@ import type { Application } from "@/lib/types";
 import { getGuestApplications, replaceGuestApplications } from "@/lib/guest-storage";
 
 const ACCENTS = [
+  { id: "coral" as const, color: "#EB5757", label: "Coral" },
   { id: "indigo" as const, color: "#4F46E5", label: "Indigo" },
   { id: "teal" as const, color: "#0D9488", label: "Teal" },
   { id: "rose" as const, color: "#E11D48", label: "Rose" },
   { id: "amber" as const, color: "#B45309", label: "Amber" },
   { id: "emerald" as const, color: "#059669", label: "Emerald" },
+  { id: "pink" as const, color: "#EC4899", label: "Pink" },
+  { id: "violet" as const, color: "#8B5CF6", label: "Violet" },
+  { id: "cyan" as const, color: "#06B6D4", label: "Cyan" },
+  { id: "lime" as const, color: "#84CC16", label: "Lime" },
+  { id: "fuchsia" as const, color: "#D946EF", label: "Fuchsia" },
+  { id: "salmon" as const, color: "#FF91A4", label: "Salmon" },
 ];
 
 const GUEST_BANNER_KEY = "jt-show-guest-banner";
@@ -100,50 +107,58 @@ export function SettingsPanel({ guest = false, onClose, onGuestBannerChange, onL
     }
   }
 
-  const inputClass = "w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm outline-none";
-  const inputStyle = { background: "rgb(var(--color-surface))", borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" };
+  const inputClass = "w-full px-4 py-2.5 text-sm outline-none transition-all duration-200";
+  const inputStyle = {
+    background: "rgb(var(--color-surface-variant))",
+    color: "rgb(var(--color-on-surface))",
+    borderRadius: "var(--radius-sm)",
+    boxShadow: "var(--neu-inset)",
+    border: "none",
+  };
 
   return (
     <motion.div
-      className={onClose ? "fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4 sm:p-8" : "max-w-lg mx-auto"}
+      className={onClose ? "fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 sm:p-8" : "max-w-lg mx-auto"}
       onClick={onClose}
       initial={onClose ? { opacity: 0 } : undefined}
       animate={onClose ? { opacity: 1 } : undefined}
       transition={{ duration: 0.18 }}
     >
-      <motion.div className={onClose ? "max-w-lg mx-auto rounded-[var(--radius-xl)] p-5 sm:p-6" : ""} style={onClose ? { background: "rgb(var(--color-surface))" } : undefined} onClick={(event) => event.stopPropagation()} initial={onClose ? { opacity: 0, y: 16, scale: 0.97 } : undefined} animate={onClose ? { opacity: 1, y: 0, scale: 1 } : undefined} transition={{ duration: 0.22, ease: "easeOut" }}>
-        {onClose ? (
-          <div className="flex items-center justify-between mb-6">
-            <span className="text-sm font-medium" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Settings</span>
-            <button onClick={onClose} className="p-2 rounded-[var(--radius-full)]" style={{ color: "rgb(var(--color-on-surface-variant))" }} title="Close settings" aria-label="Close settings">
-              <X size={20} weight="bold" />
-            </button>
-          </div>
-        ) : (
-          <Link href={guest ? "/guest" : "/dashboard"} className="inline-flex items-center gap-1.5 text-sm font-medium mb-6" style={{ color: "rgb(var(--color-primary))" }}>
-            <ArrowLeft size={16} weight="bold" /> Back to applications
-          </Link>
+      <motion.div className={onClose ? "w-full max-w-lg flex flex-col max-h-[90dvh] relative overflow-hidden" : "relative overflow-hidden"} style={onClose ? { background: "rgb(var(--color-surface))", borderRadius: "var(--radius-sm)", boxShadow: "var(--neu-shadow-lg)" } : undefined} onClick={(event) => event.stopPropagation()} initial={onClose ? { opacity: 0, y: 16, scale: 0.97 } : undefined} animate={onClose ? { opacity: 1, y: 0, scale: 1 } : undefined} transition={{ duration: 0.22, ease: "easeOut" }}>
+        {onClose && (
+          <button onClick={onClose} className="absolute top-4 right-4 p-2.5 z-10 rounded-[var(--radius-md)] transition-all duration-200 hover:scale-105 active:scale-95" style={{ background: "rgb(var(--color-surface))", color: "rgb(var(--color-on-surface))", boxShadow: "var(--neu-shadow-sm)" }} title="Close settings" aria-label="Close settings">
+            <X size={18} weight="bold" />
+          </button>
         )}
+        {!onClose && (
+          <div className="px-5 sm:px-6 pt-5 sm:pt-6">
+            <Link href={guest ? "/guest" : "/dashboard"} className="inline-flex items-center gap-1.5 text-sm font-medium mb-6" style={{ color: "rgb(var(--color-primary))" }}>
+              <ArrowLeft size={16} weight="bold" /> Back to applications
+            </Link>
+          </div>
+        )}
+        <div className="overflow-y-auto p-5 sm:p-6">
       <div className="flex items-center gap-3 mb-1"><GearSix size={25} weight="fill" style={{ color: "rgb(var(--color-primary))" }} /><h1 className="text-2xl font-bold" style={{ color: "rgb(var(--color-on-surface))" }}>Settings</h1></div>
       <p className="text-sm mb-8" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Personalize JobTrack and manage your data.</p>
 
-      <section className="p-5 rounded-[var(--radius-xl)] border mb-6" style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))" }}>
+      <section className="p-5 mb-6" style={{ background: "rgb(var(--color-surface))", borderRadius: "var(--radius-sm)", boxShadow: "var(--neu-shadow)" }}>
         <div className="flex items-center gap-2 mb-4"><Palette size={18} weight="bold" style={{ color: "rgb(var(--color-primary))" }} /><h2 className="font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>Appearance</h2></div>
         <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Color mode</label>
         <div className="grid grid-cols-3 gap-3 mb-5">{(["light", "dark", "auto"] as const).map((mode) => <button key={mode} onClick={() => setTheme(mode)} className="flex items-center justify-center gap-0 sm:gap-2 px-2 sm:px-3 py-2.5 rounded-[var(--radius-md)] border text-sm font-medium" style={{ background: theme === mode ? "rgb(var(--color-primary))" : "rgb(var(--color-surface))", color: theme === mode ? "rgb(var(--color-on-primary))" : "rgb(var(--color-on-surface))", borderColor: theme === mode ? "transparent" : "rgb(var(--color-outline))" }}>{mode === "light" ? <Sun size={17} className="hidden sm:block" /> : mode === "dark" ? <Moon size={17} className="hidden sm:block" /> : <Monitor size={17} className="hidden sm:block" />}{mode[0].toUpperCase() + mode.slice(1)}</button>)}</div>
         <label className="block text-sm font-medium mb-2" style={{ color: "rgb(var(--color-on-surface))" }}>Accent color</label>
-        <div className="flex gap-3">{ACCENTS.map((item) => <button key={item.id} onClick={() => setAccent(item.id)} aria-label={item.label} title={item.label} className="w-8 h-8 rounded-full border-2" style={{ background: item.color, borderColor: accent === item.id ? "rgb(var(--color-on-surface))" : "transparent" }} />)}</div>
+        <div className="flex flex-wrap gap-3">{ACCENTS.map((item) => <button key={item.id} onClick={() => setAccent(item.id)} aria-label={item.label} title={item.label} className="w-8 h-8 rounded-full border-2" style={{ background: item.color, borderColor: accent === item.id ? "rgb(var(--color-on-surface))" : "transparent" }} />)}</div>
       </section>
 
-      <section className="p-5 rounded-[var(--radius-xl)] border mb-6" style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))" }}>
+      <section className="p-5 mb-6" style={{ background: "rgb(var(--color-surface))", borderRadius: "var(--radius-sm)", boxShadow: "var(--neu-shadow)" }}>
         <h2 className="font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>Layout</h2>
         <div className="flex items-center justify-between gap-4 mt-4"><div><p className="text-sm font-medium" style={{ color: "rgb(var(--color-on-surface))" }}>Classic Layout</p><p className="text-sm mt-1" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Show applications in a compact table.</p></div><button role="switch" aria-checked={classicLayout} onClick={() => updateLayout(!classicLayout)} className="relative h-6 w-11 shrink-0 overflow-hidden rounded-full" style={{ background: classicLayout ? "rgb(var(--color-primary))" : "rgb(var(--color-outline))" }}><span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${classicLayout ? "translate-x-5" : "translate-x-0"}`} /></button></div>
         {classicLayout && <div className="flex items-center justify-between gap-4 mt-4"><div><p className="text-sm font-medium" style={{ color: "rgb(var(--color-on-surface))" }}>Ascending order</p><p className="text-sm mt-1" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Show oldest applications first.</p></div><button role="switch" aria-checked={sortAscending} onClick={() => updateLayout(classicLayout, !sortAscending)} className="relative h-6 w-11 shrink-0 overflow-hidden rounded-full" style={{ background: sortAscending ? "rgb(var(--color-primary))" : "rgb(var(--color-outline))" }}><span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${sortAscending ? "translate-x-5" : "translate-x-0"}`} /></button></div>}
       </section>
 
-      {guest && <section className="p-5 rounded-[var(--radius-xl)] border mb-6" style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))" }}><div className="flex items-center justify-between gap-4"><div><h2 className="font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>Guest mode notice</h2><p className="text-sm mt-1" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Show the local-storage notice above your applications.</p></div><button role="switch" aria-checked={showGuestBanner} onClick={() => updateGuestBanner(!showGuestBanner)} className="relative h-6 w-11 shrink-0 overflow-hidden rounded-full transition-colors" style={{ background: showGuestBanner ? "rgb(var(--color-primary))" : "rgb(var(--color-outline))" }}><span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${showGuestBanner ? "translate-x-5" : "translate-x-0"}`} /></button></div></section>}
+      {guest && <section className="p-5 mb-6" style={{ background: "rgb(var(--color-surface))", borderRadius: "var(--radius-sm)", boxShadow: "var(--neu-shadow)" }}><div className="flex items-center justify-between gap-4"><div><h2 className="font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>Guest mode notice</h2><p className="text-sm mt-1" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Show the local-storage notice above your applications.</p></div><button role="switch" aria-checked={showGuestBanner} onClick={() => updateGuestBanner(!showGuestBanner)} className="relative h-6 w-11 shrink-0 overflow-hidden rounded-full transition-colors" style={{ background: showGuestBanner ? "rgb(var(--color-primary))" : "rgb(var(--color-outline))" }}><span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${showGuestBanner ? "translate-x-5" : "translate-x-0"}`} /></button></div></section>}
 
-      <section className="p-5 rounded-[var(--radius-xl)] border" style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))" }}><h2 className="font-semibold mb-1" style={{ color: "rgb(var(--color-on-surface))" }}>Data</h2><p className="text-sm mb-4" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Keep a portable JSON backup of your applications.</p><div className="flex gap-3"><button onClick={exportJson} className={`${inputClass} flex items-center justify-center gap-2 font-medium`} style={inputStyle}><DownloadSimple size={17} /> Export JSON</button><label className={`${inputClass} flex items-center justify-center gap-2 font-medium cursor-pointer`} style={inputStyle}><UploadSimple size={17} /> Import JSON<input type="file" accept="application/json,.json" onChange={importJson} className="sr-only" /></label></div>{message && <p className="text-sm mt-3" style={{ color: "rgb(var(--color-primary))" }}>{message}</p>}</section>
+      <section className="p-5" style={{ background: "rgb(var(--color-surface))", borderRadius: "var(--radius-sm)", boxShadow: "var(--neu-shadow)" }}><h2 className="font-semibold mb-1" style={{ color: "rgb(var(--color-on-surface))" }}>Data</h2><p className="text-sm mb-4" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Keep a portable JSON backup of your applications.</p><div className="flex gap-3"><button onClick={exportJson} className={`${inputClass} flex items-center justify-center gap-2 font-medium`} style={inputStyle}><DownloadSimple size={17} /> Export JSON</button><label className={`${inputClass} flex items-center justify-center gap-2 font-medium cursor-pointer`} style={inputStyle}><UploadSimple size={17} /> Import JSON<input type="file" accept="application/json,.json" onChange={importJson} className="sr-only" /></label></div>{message && <p className="text-sm mt-3" style={{ color: "rgb(var(--color-primary))" }}>{message}</p>}</section>
+        </div>
       </motion.div>
     </motion.div>
   );

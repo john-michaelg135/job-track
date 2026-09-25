@@ -36,12 +36,12 @@ export function ConsentBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-md p-5 rounded-[var(--radius-xl)] border shadow-lg"
+          className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-md p-5"
           style={{
             zIndex: 10000,
-            background: "rgb(var(--color-surface-container))",
-            borderColor: "rgb(var(--color-outline-variant))",
-            boxShadow: "var(--shadow-elevation-3)",
+            background: "rgb(var(--color-surface))",
+            borderRadius: "var(--radius-sm)",
+            boxShadow: "var(--neu-shadow-lg)",
           }}
         >
           <h3 className="font-semibold text-sm mb-2" style={{ color: "rgb(var(--color-on-surface))" }}>
@@ -60,15 +60,25 @@ export function ConsentBanner() {
           <div className="flex gap-2">
             <button
               onClick={handleAccept}
-              className="flex-1 px-4 py-2 rounded-[var(--radius-full)] font-medium text-xs transition-all duration-200 hover:scale-105 active:scale-95"
-              style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}
+              className="flex-1 px-4 py-2 font-semibold text-xs transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{
+                backgroundImage: "var(--gradient-primary)",
+                color: "rgb(var(--color-on-primary))",
+                borderRadius: "var(--radius-sm)",
+                boxShadow: "3px 3px 8px var(--gradient-primary-glow), -2px -2px 5px rgba(255,255,255,0.5)",
+              }}
             >
               Accept all
             </button>
             <button
               onClick={handleDecline}
-              className="flex-1 px-4 py-2 rounded-[var(--radius-full)] font-medium text-xs border transition-all duration-200 hover:scale-105 active:scale-95"
-              style={{ borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
+              className="flex-1 px-4 py-2 font-medium text-xs transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{
+                background: "rgb(var(--color-surface))",
+                color: "rgb(var(--color-on-surface))",
+                borderRadius: "var(--radius-sm)",
+                boxShadow: "var(--neu-shadow-sm)",
+              }}
             >
               Essential only
             </button>

@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark" | "auto";
-type Accent = "indigo" | "teal" | "rose" | "amber" | "emerald";
+type Accent = "coral" | "indigo" | "teal" | "rose" | "amber" | "emerald" | "pink" | "violet" | "cyan" | "lime" | "fuchsia" | "salmon";
 
 interface ThemeContextValue {
   theme: Theme;
@@ -16,7 +16,7 @@ interface ThemeContextValue {
 // Provide a safe default so useTheme never throws
 const defaultContext: ThemeContextValue = {
   theme: "light",
-  accent: "indigo",
+  accent: "coral",
   setTheme: () => {},
   setAccent: () => {},
   toggleTheme: () => {},
@@ -26,7 +26,7 @@ const ThemeContext = createContext<ThemeContextValue>(defaultContext);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
-  const [accent, setAccentState] = useState<Accent>("indigo");
+  const [accent, setAccentState] = useState<Accent>("coral");
   const [systemTheme, setSystemTheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
 
@@ -39,7 +39,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const initializeTheme = window.setTimeout(() => {
       setSystemTheme(nextSystemTheme);
       setThemeState(savedTheme === "dark" || savedTheme === "auto" ? savedTheme : nextSystemTheme);
-      setAccentState(savedAccent || "indigo");
+      setAccentState(savedAccent || "coral");
       setMounted(true);
     }, 0);
 

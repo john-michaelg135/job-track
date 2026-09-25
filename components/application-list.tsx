@@ -14,6 +14,7 @@ import { isNetworkError, queueApplicationMutation } from "@/lib/offline";
 import { useModalBack } from "@/lib/use-modal-back";
 import { LongPressSurface } from "./long-press-surface";
 import { ApplicationDetailsPopover } from "./application-details-popover";
+import { StatusDropdown } from "./status-dropdown";
 
 const FILTER_OPTIONS: { value: ApplicationStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -40,7 +41,7 @@ export function ApplicationList({ applications }: ApplicationListProps) {
 
   useEffect(() => {
     const loadPreferences = (event?: Event) => {
-      const detail = (event as CustomEvent<{ classic?: boolean; ascending?: boolean }> | undefined)?.detail;
+      const detail = (event as CustomEvent<{ classic?: boolean; ascending?: boolean } | undefined>)?.detail;
       setClassicLayout(detail?.classic ?? (localStorage.getItem("jt-classic-layout") === "true"));
       setSortAscending(detail?.ascending ?? (localStorage.getItem("jt-classic-sort-ascending") === "true"));
     };
@@ -82,6 +83,18 @@ export function ApplicationList({ applications }: ApplicationListProps) {
     setShowForm(true);
   }
 
+  async function handleStatusChange(app: Application, newStatus: ApplicationStatus) {
+    if (app.status === newStatus) return;
+    const supabase = createClient();
+    if (!navigator.onLine) {
+      await queueApplicationMutation({ kind: "update", payload: { id: app.id, status: newStatus } });
+    } else {
+      const { error } = await supabase.from("applications").update({ status: newStatus }).eq("id", app.id);
+      if (error && isNetworkError(error)) await queueApplicationMutation({ kind: "update", payload: { id: app.id, status: newStatus } });
+    }
+    router.refresh();
+  }
+
   function handleClose() {
     setShowForm(false);
     setEditing(undefined);
@@ -93,21 +106,26 @@ export function ApplicationList({ applications }: ApplicationListProps) {
   return (
     <>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5 mb-8">
         <div>
-          <h2 className="text-2xl font-bold" style={{ color: "rgb(var(--color-on-surface))" }}>
+          <h1 className="text-3xl font-bold tracking-tight" style={{ color: "rgb(var(--color-on-surface))" }}>
             Applications
-          </h2>
-          <p className="text-sm mt-1" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
+          </h1>
+          <p className="text-sm mt-1.5 font-[family-name:var(--font-jetbrains-mono)]" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
             {applications.length} total &middot; {filtered.length} shown
           </p>
         </div>
         <motion.button
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.96 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius-full)] font-medium text-sm transition-shadow duration-200 hover:shadow-lg"
-          style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}
+          className="shrink-0 self-start sm:self-auto flex items-center gap-2 px-5 py-2.5 font-semibold text-sm transition-shadow duration-200"
+          style={{
+            backgroundImage: "var(--gradient-primary)",
+            color: "rgb(var(--color-on-primary))",
+            borderRadius: "var(--radius-sm)",
+            boxShadow: "var(--neu-shadow-primary-lg)",
+          }}
         >
           <Plus size={18} weight="bold" />
           Add application
@@ -115,23 +133,32 @@ export function ApplicationList({ applications }: ApplicationListProps) {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none">
-        <FunnelSimple size={18} className="shrink-0 mt-1.5" style={{ color: "rgb(var(--color-on-surface-variant))" }} />
-        {FILTER_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setFilter(opt.value)}
-            className="px-4 py-2 rounded-[var(--radius-full)] text-sm font-medium whitespace-nowrap border transition-all duration-200 shrink-0 touch-manipulation"
-            style={{
-              background: filter === opt.value ? "rgb(var(--color-primary))" : "rgb(var(--color-surface-container))",
-              color: filter === opt.value ? "rgb(var(--color-on-primary))" : "rgb(var(--color-on-surface-variant))",
-              borderColor: filter === opt.value ? "transparent" : "rgb(var(--color-outline-variant))",
-              minHeight: "40px",
-            }}
-          >
-            {opt.label}
-          </button>
-        ))}
+      <div className="overflow-x-auto -mx-4 mb-6 scrollbar-none">
+        <div className="flex gap-2.5 py-3 px-4">
+        <FunnelSimple size={17} className="shrink-0 mt-2.5" style={{ color: "rgb(var(--color-on-surface-variant))" }} />
+        {FILTER_OPTIONS.map((opt) => {
+          const isActive = filter === opt.value;
+          return (
+            <button
+              key={opt.value}
+              onClick={() => setFilter(opt.value)}
+              className="px-4 py-2 text-sm font-medium whitespace-nowrap shrink-0 touch-manipulation transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{
+                borderRadius: "var(--radius-sm)",
+                background: isActive ? "var(--gradient-primary)" : "rgb(var(--color-surface))",
+                color: isActive ? "rgb(var(--color-on-primary))" : "rgb(var(--color-on-surface-variant))",
+                minHeight: "40px",
+                boxShadow: isActive
+                  ? "var(--neu-inset-primary)"
+                  : "var(--neu-shadow-sm)",
+                border: "none",
+              }}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+        </div>
       </div>
 
       {/* List */}
@@ -140,8 +167,12 @@ export function ApplicationList({ applications }: ApplicationListProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="text-center py-20 rounded-[var(--radius-xl)] border"
-          style={{ background: "rgb(var(--color-surface-container))", borderColor: "rgb(var(--color-outline-variant))" }}
+          className="text-center py-20"
+          style={{
+            borderRadius: "var(--radius-sm)",
+            background: "rgb(var(--color-surface))",
+            boxShadow: "var(--neu-shadow)",
+          }}
         >
           <Briefcase size={48} weight="duotone" className="mx-auto mb-3" style={{ color: "rgb(var(--color-primary))" }} />
           <h3 className="text-lg font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>
@@ -155,8 +186,13 @@ export function ApplicationList({ applications }: ApplicationListProps) {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => setShowForm(true)}
-              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-[var(--radius-full)] font-medium text-sm"
-              style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}
+              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 font-semibold text-sm"
+              style={{
+                background: "rgb(var(--color-primary))",
+                color: "rgb(var(--color-on-primary))",
+                borderRadius: "var(--radius-sm)",
+                boxShadow: "4px 4px 10px rgb(var(--color-primary) / 0.35), -2px -2px 6px rgba(255,255,255,0.5)",
+              }}
             >
               <Plus size={16} weight="bold" />
               Add application
@@ -164,35 +200,44 @@ export function ApplicationList({ applications }: ApplicationListProps) {
           )}
         </motion.div>
       ) : classicLayout ? (
-        <ClassicApplicationTable applications={filtered} onEdit={handleEdit} onDelete={setDeleteId} onDetails={setDetails} />
+        <ClassicApplicationTable applications={filtered} onEdit={handleEdit} onDelete={setDeleteId} onDetails={setDetails} onStatusChange={handleStatusChange} />
       ) : (
         <div className="space-y-3">
-            {filtered.map((app) => (
-              <LongPressSurface key={app.id} onLongPress={() => setDetails(app)}>
+          {filtered.map((app) => (
+            <LongPressSurface key={app.id} onLongPress={() => setDetails(app)}>
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
-                className="p-4 sm:p-5 rounded-[var(--radius-xl)] border transition-shadow duration-200 hover:shadow-md"
+                whileHover={{ y: -2, boxShadow: "var(--neu-shadow-lg)" }}
+                className="p-4 sm:p-5 transition-all duration-200"
                 data-cursor-morph
                 style={{
-                  background: "rgb(var(--color-surface-container))",
-                  borderColor: "rgb(var(--color-outline-variant))",
+                  borderRadius: "var(--radius-sm)",
+                  background: "rgb(var(--color-surface))",
+                  boxShadow: "var(--neu-shadow)",
                 }}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5 flex-wrap">
-                      <h3 className="font-semibold truncate" style={{ color: "rgb(var(--color-on-surface))" }}>
+                      <h3 className="font-semibold tracking-tight" style={{ color: "rgb(var(--color-on-surface))" }}>
                         {app.company}
                       </h3>
-                      <StatusBadge status={app.status} />
+                      <StatusDropdown 
+                        status={app.status} 
+                        onChange={(newStatus) => handleStatusChange(app, newStatus)} 
+                      />
                     </div>
                     <p className="text-sm mt-0.5 truncate" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
                       {app.role}
                     </p>
-                    {app.offer && <p className="text-sm mt-1" style={{ color: "rgb(var(--color-primary))" }}>Offer: {app.offer_currency ?? "$"}{app.offer}</p>}
-                    <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
+                    {app.offer && (
+                      <p className="text-sm mt-1 font-semibold" style={{ color: "rgb(var(--color-primary))" }}>
+                        {app.offer_currency ?? "₱"}{app.offer}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-3 mt-2 text-xs font-[family-name:var(--font-jetbrains-mono)]" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
                       <span>{app.applied_date}</span>
                       {app.url && (
                         <a
@@ -216,16 +261,26 @@ export function ApplicationList({ applications }: ApplicationListProps) {
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => handleEdit(app)}
-                      className="p-2 rounded-[var(--radius-full)] transition-transform duration-150 hover:scale-110 active:scale-90"
-                      style={{ color: "rgb(var(--color-on-surface-variant))" }}
+                      className="p-2 transition-all duration-150"
+                      style={{
+                        color: "rgb(var(--color-on-surface-variant))",
+                        borderRadius: "var(--radius-full)",
+                        background: "rgb(var(--color-surface))",
+                        boxShadow: "var(--neu-shadow-sm)",
+                      }}
                       title="Edit"
                     >
                       <PencilSimple size={18} weight="bold" />
                     </button>
                     <button
                       onClick={() => setDeleteId(app.id)}
-                      className="p-2 rounded-[var(--radius-full)] transition-transform duration-150 hover:scale-110 active:scale-90"
-                      style={{ color: "rgb(var(--color-error))" }}
+                      className="p-2 transition-all duration-150"
+                      style={{
+                        color: "rgb(var(--color-error))",
+                        borderRadius: "var(--radius-full)",
+                        background: "rgb(var(--color-surface))",
+                        boxShadow: "var(--neu-shadow-sm)",
+                      }}
                       title="Delete"
                     >
                       <Trash size={18} weight="bold" />
@@ -233,8 +288,8 @@ export function ApplicationList({ applications }: ApplicationListProps) {
                   </div>
                 </div>
               </motion.div>
-              </LongPressSurface>
-            ))}
+            </LongPressSurface>
+          ))}
         </div>
       )}
 

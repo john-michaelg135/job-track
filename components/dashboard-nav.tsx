@@ -22,7 +22,7 @@ const ACCENTS = [
 export function DashboardNav({ email }: { email: string }) {
   const router = useRouter();
   const { accent, setAccent } = useTheme();
-  const [showPalette, setShowPalette] = useState(false);
+
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -36,141 +36,114 @@ export function DashboardNav({ email }: { email: string }) {
     router.refresh();
   }
 
+  const navIconBtn = {
+    background: "rgb(var(--color-surface))",
+    color: "rgb(var(--color-on-surface-variant))",
+    borderRadius: "var(--radius-full)",
+    boxShadow: "var(--neu-shadow-sm)",
+  };
+
   return (
     <>
-    <header
-      className="sticky top-0 z-20 border-b backdrop-blur-xl"
-      style={{
-        background: "rgb(var(--color-surface) / 0.85)",
-        borderColor: "rgb(var(--color-outline-variant))",
-      }}
-    >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <BrandMark />
-          <span className="font-semibold" style={{ color: "rgb(var(--color-on-surface))" }}>
-            JobTrack
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1 sm:gap-2">
-          <Link
-            href="/dashboard/account"
-            className="hidden sm:inline text-xs truncate max-w-[160px] px-3 py-1.5 rounded-[var(--radius-full)] transition-all duration-200 hover:scale-105"
-            style={{ background: "rgb(var(--color-surface-container))", color: "rgb(var(--color-primary))" }}
-          >
-            {email}
-          </Link>
-          <button
-            onClick={() => setShowSettings(true)}
-            className="p-2 rounded-[var(--radius-full)]"
-            style={{ color: "rgb(var(--color-on-surface-variant))" }}
-            title="Settings"
-          >
-            <GearSix size={20} weight="fill" />
-          </button>
-
-          {/* Accent picker */}
-          <div className="relative">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowPalette(!showPalette)}
-              className="p-2 rounded-[var(--radius-full)] transition-colors duration-200"
-              style={{ color: "rgb(var(--color-primary))" }}
-              title="Change accent color"
-            >
-              <Palette size={20} weight="bold" />
-            </motion.button>
-
-            <AnimatePresence>
-              {showPalette && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9, y: -5 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: -5 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  className="absolute right-0 top-full mt-2 p-3 rounded-[var(--radius-lg)] border shadow-lg"
-                  style={{
-                    background: "rgb(var(--color-surface-container))",
-                    borderColor: "rgb(var(--color-outline-variant))",
-                  }}
-                >
-                  <div className="flex items-center gap-2 mb-2 justify-between">
-                    <span className="text-xs font-medium" style={{ color: "rgb(var(--color-on-surface-variant))" }}>Accent</span>
-                    <button onClick={() => setShowPalette(false)}>
-                      <X size={14} style={{ color: "rgb(var(--color-on-surface-variant))" }} />
-                    </button>
-                  </div>
-                  <div className="flex gap-2">
-                    {ACCENTS.map((a) => (
-                      <motion.button
-                        key={a.id}
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => { setAccent(a.id); setShowPalette(false); }}
-                        className="w-7 h-7 rounded-full border-2 transition-all duration-200"
-                        style={{
-                          background: a.color,
-                          borderColor: accent === a.id ? "rgb(var(--color-on-surface))" : "transparent",
-                        }}
-                        title={a.label}
-                      />
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+      <header
+        className="sticky top-0 z-20"
+        style={{
+          background: "rgb(var(--color-surface) / 0.92)",
+          backdropFilter: "blur(16px)",
+          boxShadow: "0 1px 0 rgb(var(--color-outline-variant)), 0 4px 16px rgba(0,0,0,0.04)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <BrandMark />
+            <span className="font-bold text-base tracking-tight" style={{ color: "rgb(var(--color-on-surface))" }}>
+              JobTrack
+            </span>
           </div>
 
-          {/* Logout */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setShowLogoutConfirm(true)}
-            className="p-2 rounded-[var(--radius-full)] transition-colors duration-200"
-            style={{ color: "rgb(var(--color-on-surface-variant))" }}
-            title="Log out"
-          >
-            <SignOut size={20} weight="bold" />
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard/account"
+              className="hidden sm:inline-block text-xs truncate max-w-[160px] px-3 py-1.5 font-medium transition-all duration-200"
+              style={{
+                background: "rgb(var(--color-surface))",
+                color: "rgb(var(--color-primary))",
+                borderRadius: "var(--radius-sm)",
+                boxShadow: "var(--neu-shadow-sm)",
+              }}
+            >
+              {email}
+            </Link>
+
+            <button
+              onClick={() => setShowSettings(true)}
+              className="p-2 transition-all duration-200 hover:scale-105 active:scale-95"
+              style={navIconBtn}
+              title="Settings"
+            >
+              <GearSix size={20} weight="fill" />
+            </button>
+
+
+            {/* Logout */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setShowLogoutConfirm(true)}
+              className="p-2 transition-all duration-200 hover:scale-105"
+              style={navIconBtn}
+              title="Log out"
+            >
+              <SignOut size={20} weight="bold" />
+            </motion.button>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
 
       {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
 
-      {/* Logout confirmation — rendered outside header for proper centering */}
+      {/* Logout confirmation */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
           <div
             className="fixed inset-0 animate-[fadeIn_150ms_ease-out]"
-            style={{ background: "rgba(0, 0, 0, 0.4)" }}
+            style={{ background: "rgba(0,0,0,0.35)" }}
             onClick={() => setShowLogoutConfirm(false)}
           />
           <div
-            className="relative p-6 rounded-[var(--radius-xl)] border animate-[modalIn_200ms_cubic-bezier(0.34,1.56,0.64,1)] w-full max-w-xs text-center"
+            className="relative p-6 animate-[modalIn_200ms_cubic-bezier(0.34,1.56,0.64,1)] w-full max-w-xs text-center"
             style={{
-              background: "rgb(var(--color-surface-container))",
-              borderColor: "rgb(var(--color-outline-variant))",
-              boxShadow: "0 24px 48px rgba(0,0,0,0.15)",
+              background: "rgb(var(--color-surface))",
+              borderRadius: "var(--radius-sm)",
+              boxShadow: "var(--neu-shadow-lg)",
             }}
           >
             <SignOut size={32} weight="duotone" className="mx-auto mb-3" style={{ color: "rgb(var(--color-primary))" }} />
-            <h3 className="font-semibold mb-1" style={{ color: "rgb(var(--color-on-surface))" }}>Log out?</h3>
+            <h3 className="font-bold mb-1" style={{ color: "rgb(var(--color-on-surface))" }}>Log out?</h3>
             <p className="text-sm mb-5" style={{ color: "rgb(var(--color-on-surface-variant))" }}>
               Are you sure you want to sign out?
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowLogoutConfirm(false)}
-                className="flex-1 px-4 py-2.5 border rounded-[var(--radius-full)] font-medium text-sm transition-transform duration-150 active:scale-95"
-                style={{ borderColor: "rgb(var(--color-outline))", color: "rgb(var(--color-on-surface))" }}
+                className="flex-1 px-4 py-2.5 font-medium text-sm transition-all duration-150"
+                style={{
+                  background: "rgb(var(--color-surface))",
+                  color: "rgb(var(--color-on-surface))",
+                  borderRadius: "var(--radius-sm)",
+                  boxShadow: "var(--neu-shadow-sm)",
+                }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleLogout}
-                className="flex-1 px-4 py-2.5 rounded-[var(--radius-full)] font-medium text-sm transition-transform duration-150 active:scale-95"
-                style={{ background: "rgb(var(--color-error))", color: "#fff" }}
+                className="flex-1 px-4 py-2.5 font-medium text-sm transition-all duration-150"
+                style={{
+                  background: "rgb(var(--color-error))",
+                  color: "#fff",
+                  borderRadius: "var(--radius-sm)",
+                  boxShadow: "4px 4px 10px rgba(220,38,38,0.3), -2px -2px 6px rgba(255,255,255,0.5)",
+                }}
               >
                 Log out
               </button>

@@ -31,9 +31,11 @@ function LoginForm() {
   }
 
   const inputStyles = {
-    background: "rgb(var(--color-surface))",
-    borderColor: "rgb(var(--color-outline))",
+    background: "rgb(var(--color-surface-variant))",
     color: "rgb(var(--color-on-surface))",
+    borderRadius: "var(--radius-sm)",
+    boxShadow: "var(--neu-inset)",
+    border: "none",
   };
 
   return (
@@ -45,7 +47,7 @@ function LoginForm() {
     >
       <div className="text-center mb-8">
         <Link href="/" className="inline-flex items-center gap-2 mb-6">
-          <div className="w-9 h-9 rounded-[var(--radius-md)] flex items-center justify-center" style={{ background: "rgb(var(--color-primary))" }}>
+          <div className="w-9 h-9 rounded-[var(--radius-md)] flex items-center justify-center" style={{ backgroundImage: "var(--gradient-primary)" }}>
             <Briefcase size={20} weight="bold" color="rgb(var(--color-on-primary))" />
           </div>
           <span className="text-xl font-bold" style={{ color: "rgb(var(--color-on-surface))" }}>JobTrack</span>
@@ -62,16 +64,16 @@ function LoginForm() {
         )}
         <div>
           <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent" style={inputStyles} placeholder="you@example.com" />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-4 py-2.5 text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary)/0.3)]" style={inputStyles} placeholder="you@example.com" />
         </div>
         <div>
           <label className="block text-sm font-medium mb-1.5" style={{ color: "rgb(var(--color-on-surface))" }}>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full px-4 py-2.5 border rounded-[var(--radius-md)] text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary))] focus:border-transparent" style={inputStyles} placeholder="••••••••" />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full px-4 py-2.5 text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-[rgb(var(--color-primary)/0.3)]" style={inputStyles} placeholder="••••••••" />
           <div className="mt-1.5 text-right">
             <Link href="/forgot-password" className="text-xs font-medium" style={{ color: "rgb(var(--color-primary))" }}>Forgot password?</Link>
           </div>
         </div>
-        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 rounded-[var(--radius-full)] font-medium text-sm transition-shadow duration-200 hover:shadow-lg disabled:opacity-50" style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}>
+        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 font-semibold text-sm transition-shadow duration-200 disabled:opacity-50" style={{ backgroundImage: "var(--gradient-primary)", color: "rgb(var(--color-on-primary))", borderRadius: "var(--radius-sm)", boxShadow: "var(--neu-shadow-primary)" }}>
           {loading ? "Signing in..." : "Sign in"}
           {!loading && <ArrowRight size={16} weight="bold" />}
         </motion.button>

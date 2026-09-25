@@ -18,7 +18,7 @@ interface ApplicationMutationValues {
   url: string | null;
   offer: string | null;
   offer_currency: "₱" | "$";
-  status: "applied" | "interviewing" | "offer" | "rejected";
+  status: "applied" | "interviewing" | "offer" | "rejected" | "unresponsive";
   applied_date: string;
   notes: string | null;
 }

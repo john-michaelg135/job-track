@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/lib/theme";
 import { AuthListener } from "@/components/auth-listener";
 import { BackgroundOrbs, CursorGlow } from "@/components/background-effects";
@@ -8,14 +8,18 @@ import { ConsentBanner } from "@/components/consent-banner";
 import { OfflineManager } from "@/components/offline-manager";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const roboto = Roboto({
+  variable: "--font-roboto",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +31,7 @@ export const metadata: Metadata = {
 export async function generateViewport(): Promise<Viewport> {
   const theme = (await cookies()).get("jt-theme")?.value;
   return {
-    themeColor: theme === "dark" ? "#121216" : "#fafafc",
+    themeColor: theme === "dark" ? "#1c2026" : "#f4f6f8",
   };
 }
 
@@ -39,10 +43,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${roboto.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen font-[family-name:var(--font-geist-sans)] antialiased">
+      <body className="min-h-[100dvh] font-[family-name:var(--font-roboto)] antialiased">
         <ThemeProvider>
           <BackgroundOrbs />
           <CursorGlow />

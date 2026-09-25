@@ -57,7 +57,7 @@ export default function SignupPage() {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 300, damping: 25 }} className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-9 h-9 rounded-[var(--radius-md)] flex items-center justify-center" style={{ background: "rgb(var(--color-primary))" }}>
+            <div className="w-9 h-9 rounded-[var(--radius-md)] flex items-center justify-center" style={{ backgroundImage: "var(--gradient-primary)" }}>
               <Briefcase size={20} weight="bold" color="rgb(var(--color-on-primary))" />
             </div>
             <span className="text-xl font-bold" style={{ color: "rgb(var(--color-on-surface))" }}>JobTrack</span>
@@ -87,7 +87,7 @@ export default function SignupPage() {
               I agree to the <a href="/terms" target="_blank" className="underline" style={{ color: "rgb(var(--color-primary))" }}>Terms of Service</a> and <a href="/privacy" target="_blank" className="underline" style={{ color: "rgb(var(--color-primary))" }}>Privacy Policy</a>. I understand my email and encrypted password will be stored for authentication.
             </label>
           </div>
-          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 rounded-[var(--radius-full)] font-medium text-sm transition-shadow duration-200 hover:shadow-lg disabled:opacity-50" style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}>
+          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-3 rounded-[var(--radius-full)] font-medium text-sm transition-shadow duration-200 hover:shadow-lg disabled:opacity-50" style={{ backgroundImage: "var(--gradient-primary)", color: "rgb(var(--color-on-primary))", boxShadow: "0 4px 14px var(--gradient-primary-glow)" }}>
             {loading ? "Creating account..." : "Create account"}
             {!loading && <ArrowRight size={16} weight="bold" />}
           </motion.button>

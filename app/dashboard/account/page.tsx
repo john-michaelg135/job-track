@@ -201,7 +201,7 @@ export default function AccountPage() {
             type="submit"
             disabled={loading}
             className="w-full py-2.5 rounded-[var(--radius-full)] font-medium text-sm transition-transform duration-150 active:scale-95 disabled:opacity-50"
-            style={{ background: "rgb(var(--color-primary))", color: "rgb(var(--color-on-primary))" }}
+            style={{ backgroundImage: "var(--gradient-primary)", color: "rgb(var(--color-on-primary))" }}
           >
             {loading ? "Updating..." : "Update password"}
           </button>
