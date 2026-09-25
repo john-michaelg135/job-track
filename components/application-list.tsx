@@ -86,11 +86,25 @@ export function ApplicationList({ applications }: ApplicationListProps) {
   async function handleStatusChange(app: Application, newStatus: ApplicationStatus) {
     if (app.status === newStatus) return;
     const supabase = createClient();
+    
+    const values = {
+      company: app.company,
+      role: app.role,
+      location: app.location,
+      url: app.url,
+      offer: app.offer,
+      offer_currency: app.offer_currency,
+      status: newStatus,
+      applied_date: app.applied_date,
+      notes: app.notes,
+      updated_at: new Date().toISOString(),
+    };
+
     if (!navigator.onLine) {
-      await queueApplicationMutation({ kind: "update", payload: { id: app.id, status: newStatus } });
+      await queueApplicationMutation({ kind: "update", payload: { id: app.id, values } });
     } else {
       const { error } = await supabase.from("applications").update({ status: newStatus }).eq("id", app.id);
-      if (error && isNetworkError(error)) await queueApplicationMutation({ kind: "update", payload: { id: app.id, status: newStatus } });
+      if (error && isNetworkError(error)) await queueApplicationMutation({ kind: "update", payload: { id: app.id, values } });
     }
     router.refresh();
   }
