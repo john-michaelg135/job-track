@@ -40,6 +40,12 @@ const statusConfig: Record<ApplicationStatus, {
     dark: { bg: "rgba(107,114,128,0.15)", text: "#9CA3AF", border: "rgba(107,114,128,0.2)" },
     dot: "#6B7280",
   },
+  ghosted: {
+    label: "Ghosted",
+    light: { bg: "#E5E7EB", text: "#4B5563", border: "rgba(75,85,99,0.2)" },
+    dark: { bg: "rgba(75,85,99,0.15)", text: "#6B7280", border: "rgba(75,85,99,0.2)" },
+    dot: "#4B5563",
+  },
 };
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {

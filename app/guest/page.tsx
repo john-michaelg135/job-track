@@ -31,6 +31,7 @@ const FILTER_OPTIONS: { value: ApplicationStatus | "all"; label: string }[] = [
   { value: "offer", label: "Offer" },
   { value: "rejected", label: "Rejected" },
   { value: "unresponsive", label: "Unresponsive" },
+  { value: "ghosted", label: "Ghosted" },
 ];
 
 const ACCENTS = [
@@ -148,6 +149,7 @@ export default function GuestDashboard() {
     offer: applications.filter((a) => a.status === "offer").length,
     rejected: applications.filter((a) => a.status === "rejected").length,
     unresponsive: applications.filter((a) => a.status === "unresponsive").length,
+    ghosted: applications.filter((a) => a.status === "ghosted").length,
   };
 
   return (
@@ -285,6 +287,7 @@ export default function GuestDashboard() {
               { label: "Offer", key: "offer" as const, dot: "#10B981" },
               { label: "Rejected", key: "rejected" as const, dot: "#EF4444" },
               { label: "Unresponsive", key: "unresponsive" as const, dot: "#6B7280" },
+              { label: "Ghosted", key: "ghosted" as const, dot: "#4B5563" },
             ].filter((s) => counts[s.key] > 0).map((s) => (
               <button
                 key={s.key}
@@ -621,6 +624,7 @@ function GuestForm({
                   <option value="offer">Offer</option>
                   <option value="rejected">Rejected</option>
                   <option value="unresponsive">Unresponsive</option>
+                  <option value="ghosted">Ghosted</option>
                 </select>
                 <CaretDown size={16} weight="bold" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "rgb(var(--color-on-surface-variant))" }} />
               </div>

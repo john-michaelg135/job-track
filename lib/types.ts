@@ -1,4 +1,4 @@
-export type ApplicationStatus = "applied" | "interviewing" | "offer" | "rejected" | "unresponsive";
+export type ApplicationStatus = "applied" | "interviewing" | "offer" | "rejected" | "unresponsive" | "ghosted";
 export type OfferCurrency = "₱" | "$";
 
 export interface Application {

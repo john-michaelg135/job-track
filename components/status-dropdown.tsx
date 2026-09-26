@@ -13,6 +13,7 @@ const OPTIONS: { value: ApplicationStatus; label: string }[] = [
   { value: "offer", label: "Offer" },
   { value: "rejected", label: "Rejected" },
   { value: "unresponsive", label: "Unresponsive" },
+  { value: "ghosted", label: "Ghosted" },
 ];
 
 export function StatusDropdown({
