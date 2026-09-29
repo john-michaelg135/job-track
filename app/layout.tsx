@@ -56,6 +56,25 @@ export default function RootLayout({
       className={`${roboto.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                let theme = localStorage.getItem('jt-theme') || 'auto';
+                let accent = localStorage.getItem('jt-accent') || 'coral';
+                let classicLayout = localStorage.getItem('jt-classic-layout') === 'true';
+                if (theme === 'auto') {
+                  theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.setAttribute('data-accent', accent);
+                if (classicLayout) document.documentElement.setAttribute('data-classic-layout', 'true');
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-[100dvh] font-[family-name:var(--font-roboto)] antialiased">
         <ThemeProvider>
           <BackgroundOrbs />

@@ -32,16 +32,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const savedTheme = localStorage.getItem("jt-theme");
+    const savedTheme = localStorage.getItem("jt-theme") as Theme | null;
     const savedAccent = localStorage.getItem("jt-accent") as Accent | null;
     const nextSystemTheme = mediaQuery.matches ? "dark" : "light";
 
-    const initializeTheme = window.setTimeout(() => {
-      setSystemTheme(nextSystemTheme);
-      setThemeState(savedTheme === "dark" || savedTheme === "auto" ? savedTheme : nextSystemTheme);
-      setAccentState(savedAccent || "coral");
-      setMounted(true);
-    }, 0);
+    setSystemTheme(nextSystemTheme);
+    setThemeState(savedTheme === "dark" || savedTheme === "auto" ? savedTheme : nextSystemTheme);
+    setAccentState(savedAccent || "coral");
+    setMounted(true);
 
     function handleSystemThemeChange(event: MediaQueryListEvent) {
       setSystemTheme(event.matches ? "dark" : "light");
@@ -49,7 +47,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     mediaQuery.addEventListener("change", handleSystemThemeChange);
     return () => {
-      window.clearTimeout(initializeTheme);
       mediaQuery.removeEventListener("change", handleSystemThemeChange);
     };
   }, []);

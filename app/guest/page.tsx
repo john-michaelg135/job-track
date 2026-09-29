@@ -65,6 +65,7 @@ const neuIconBtn = {
 export default function GuestDashboard() {
   const router = useRouter();
   const { accent, setAccent } = useTheme();
+  
   const [applications, setApplications] = useState<Application[]>([]);
   const [filter, setFilter] = useState<ApplicationStatus | "all">("all");
   const [showForm, setShowForm] = useState(false);
@@ -74,21 +75,22 @@ export default function GuestDashboard() {
   const [showSettings, setShowSettings] = useState(false);
   const [classicLayout, setClassicLayout] = useState(false);
   const [sortAscending, setSortAscending] = useState(false);
+  
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [details, setDetails] = useState<Application | null>(null);
+
+  const [mounted, setMounted] = useState(false);
 
   useModalBack(showForm, () => { setShowForm(false); setEditing(undefined); });
   useModalBack(showSettings, () => setShowSettings(false));
 
   useEffect(() => {
     setGuestMode(true);
-    const t = window.setTimeout(() => {
-      setApplications(getGuestApplications());
-      setShowGuestBanner(localStorage.getItem("jt-show-guest-banner") === "true");
-      setClassicLayout(localStorage.getItem("jt-classic-layout") === "true");
-      setSortAscending(localStorage.getItem("jt-classic-sort-ascending") === "true");
-    }, 0);
-    return () => window.clearTimeout(t);
+    setApplications(getGuestApplications());
+    setShowGuestBanner(localStorage.getItem("jt-show-guest-banner") === "true");
+    setClassicLayout(localStorage.getItem("jt-classic-layout") === "true");
+    setSortAscending(localStorage.getItem("jt-classic-sort-ascending") === "true");
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -164,6 +166,10 @@ export default function GuestDashboard() {
           boxShadow: "0 1px 0 rgb(var(--color-outline-variant)), 0 4px 20px rgba(0,0,0,0.06)",
         }}
       >
+        <style dangerouslySetInnerHTML={{__html: `
+          html:not([data-classic-layout="true"]) .skeleton-table { display: none !important; }
+          html[data-classic-layout="true"] .skeleton-cards { display: none !important; }
+        `}} />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
           {/* Brand */}
           <div className="flex items-center gap-2.5 shrink-0">
@@ -251,15 +257,21 @@ export default function GuestDashboard() {
             <h1 className="text-3xl font-bold tracking-tight" style={{ color: "rgb(var(--color-on-surface))" }}>
               Applications
             </h1>
-            <p
-              className="text-sm mt-1.5"
-              style={{
-                color: "rgb(var(--color-on-surface-variant))",
-                fontFamily: "var(--font-jetbrains-mono, monospace)",
-              }}
-            >
-              {applications.length} total &middot; {filtered.length} shown
-            </p>
+            <div className="min-h-[20px] mt-1.5 flex items-center">
+              {!mounted ? (
+                <div className="w-24 h-4 rounded bg-[rgb(var(--color-outline-variant))]/50 animate-pulse" />
+              ) : (
+                <p
+                  className="text-sm"
+                  style={{
+                    color: "rgb(var(--color-on-surface-variant))",
+                    fontFamily: "var(--font-jetbrains-mono, monospace)",
+                  }}
+                >
+                  {applications.length} total &middot; {filtered.length} shown
+                </p>
+              )}
+            </div>
           </div>
           <motion.button
             whileHover={{ scale: 1.04 }}
@@ -279,7 +291,26 @@ export default function GuestDashboard() {
         </div>
 
         {/* Status summary chips — shown when there are applications */}
-        {applications.length > 0 && (
+        {!mounted ? (
+          <div className="flex flex-wrap gap-3 mb-6 -mx-1 px-1 py-2 -my-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 px-3.5 py-2 animate-pulse"
+                style={{
+                  background: "rgb(var(--color-surface))",
+                  borderRadius: "var(--radius-sm)",
+                  boxShadow: "var(--neu-shadow-sm)",
+                  width: i === 1 ? "90px" : i === 2 ? "110px" : "80px",
+                  height: "32px",
+                }}
+              >
+                <div className="w-2 h-2 rounded-full bg-[rgb(var(--color-outline-variant))]/50" />
+                <div className="flex-1 h-3 rounded bg-[rgb(var(--color-outline-variant))]/30" />
+              </div>
+            ))}
+          </div>
+        ) : applications.length > 0 ? (
           <div className="flex flex-wrap gap-3 mb-6 -mx-1 px-1 py-2 -my-2">
             {[
               { label: "Applied", key: "applied" as const, dot: "rgb(var(--color-primary))" },
@@ -311,7 +342,7 @@ export default function GuestDashboard() {
               </button>
             ))}
           </div>
-        )}
+        ) : null}
 
         {/* Filter pills */}
         <div className="overflow-x-auto -mx-4 mb-6 scrollbar-none">
@@ -343,7 +374,43 @@ export default function GuestDashboard() {
         </div>
 
         {/* Application list */}
-        {filtered.length === 0 ? (
+        {!mounted ? (
+          <>
+            <div className="skeleton-cards space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="p-5" style={neuCard}>
+                  <div className="animate-pulse flex flex-col sm:flex-row gap-4 justify-between">
+                    <div className="space-y-3 w-full max-w-sm">
+                      <div className="h-5 bg-[rgb(var(--color-outline-variant))]/40 rounded w-1/3" />
+                      <div className="h-4 bg-[rgb(var(--color-outline-variant))]/20 rounded w-1/4" />
+                      <div className="h-3 bg-[rgb(var(--color-outline-variant))]/20 rounded w-1/2 mt-4" />
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-[rgb(var(--color-outline-variant))]/30" />
+                      <div className="w-9 h-9 rounded-full bg-[rgb(var(--color-outline-variant))]/30" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="skeleton-table" style={neuCard}>
+              <div className="w-full animate-pulse">
+                <div className="flex px-4 py-3 border-b border-[rgb(var(--color-outline-variant))]/20">
+                  <div className="w-1/4 h-4 bg-[rgb(var(--color-outline-variant))]/40 rounded" />
+                  <div className="w-1/4 h-4 bg-[rgb(var(--color-outline-variant))]/40 rounded mx-4" />
+                  <div className="w-1/4 h-4 bg-[rgb(var(--color-outline-variant))]/40 rounded" />
+                </div>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex px-4 py-4 border-b border-[rgb(var(--color-outline-variant))]/10">
+                    <div className="w-1/4 h-4 bg-[rgb(var(--color-outline-variant))]/20 rounded" />
+                    <div className="w-1/4 h-4 bg-[rgb(var(--color-outline-variant))]/20 rounded mx-4" />
+                    <div className="w-1/4 h-4 bg-[rgb(var(--color-outline-variant))]/20 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : filtered.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
