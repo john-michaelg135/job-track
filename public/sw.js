@@ -1,4 +1,4 @@
-const VERSION = "jobtrack-v6";
+const VERSION = "jobtrack-v7";
 const APP_CACHE = `${VERSION}-app`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const APP_SHELL = ["/", "/dashboard", "/manifest.webmanifest"];
@@ -34,11 +34,11 @@ self.addEventListener("fetch", (event) => {
       const copy = response.clone();
       caches.open(RUNTIME_CACHE).then((cache) => cache.put(event.request, copy));
       return response;
-    }).catch(() => caches.match(event.request).then((cached) => cached || caches.match("/"))));
+    }).catch(() => caches.match(event.request, { ignoreSearch: true }).then((cached) => cached || caches.match("/", { ignoreSearch: true }))));
     return;
   }
 
-  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
+  event.respondWith(caches.match(event.request, { ignoreSearch: true }).then((cached) => cached || fetch(event.request).then((response) => {
     if (response.ok && url.pathname.startsWith("/icons/")) {
       const copy = response.clone();
       caches.open(RUNTIME_CACHE).then((cache) => cache.put(event.request, copy));

@@ -168,12 +168,26 @@ export function CursorGlow() {
     if (mobile) return;
 
     function handleMouseMove(e: MouseEvent) {
+      if (currentTarget.current instanceof HTMLElement) {
+        // When morphed, the blob stays glued to the element.
+        // It updates its size/position on scroll, but not on mousemove.
+        return;
+      }
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+      opacity.set(0.35);
+    }
+
+    function handleMouseOver(e: MouseEvent) {
       const target = getMorphTarget(e.target as Element);
       if (target) {
         morphToElement(target);
-      } else {
-        mouseX.set(e.clientX);
-        mouseY.set(e.clientY);
+      }
+    }
+
+    function handleMouseOut(e: MouseEvent) {
+      const target = getMorphTarget(e.target as Element);
+      if (target) {
         resetBlob();
         opacity.set(0.35);
       }
@@ -194,16 +208,20 @@ export function CursorGlow() {
       }
     }
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("mouseover", handleMouseOver, { passive: true });
+    window.addEventListener("mouseout", handleMouseOut, { passive: true });
     document.documentElement.addEventListener("mouseleave", handleMouseLeave);
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseover", handleMouseOver);
+      window.removeEventListener("mouseout", handleMouseOut);
       document.documentElement.removeEventListener("mouseleave", handleMouseLeave);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [mouseX, mouseY, width, height, radius, opacity, getMorphTarget, morphToElement, resetBlob]);
+  }, [mouseX, mouseY, opacity, getMorphTarget, morphToElement, resetBlob]);
 
   if (!mounted || isMobile) return null;
 
