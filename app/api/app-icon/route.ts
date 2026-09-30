@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 const ACCENT_COLORS = {
   coral: "#eb5757",
   indigo: "#6366f1",
@@ -23,7 +25,7 @@ export async function GET() {
 
   return new Response(svg, {
     headers: {
-      "Cache-Control": "public, max-age=3600",
+      "Cache-Control": "no-store, max-age=0",
       "Content-Type": "image/svg+xml",
     },
   });
