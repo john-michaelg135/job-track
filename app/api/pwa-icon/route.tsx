@@ -26,8 +26,15 @@ export async function GET(request: Request) {
   const accent = (await cookies()).get("jt-accent")?.value as keyof typeof ACCENT_COLORS | undefined;
   const color = ACCENT_COLORS[accent ?? "coral"] ?? ACCENT_COLORS.coral;
   
-  const theme = (await cookies()).get("jt-theme")?.value;
-  const bgColor = theme === "dark" ? "#1c2026" : "#f4f6f8";
+  const iconThemeCookie = (await cookies()).get("jt-icon-theme")?.value;
+  const systemThemeCookie = (await cookies()).get("jt-system-theme")?.value;
+  
+  const resolvedTheme = 
+    iconThemeCookie === "dark" || iconThemeCookie === "light" 
+      ? iconThemeCookie 
+      : systemThemeCookie === "dark" ? "dark" : "light";
+
+  const bgColor = resolvedTheme === "dark" ? "#1c2026" : "#f4f6f8";
 
   return new ImageResponse(
     (

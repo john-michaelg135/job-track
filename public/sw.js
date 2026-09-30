@@ -1,4 +1,4 @@
-const VERSION = "jobtrack-v7";
+const VERSION = "jobtrack-v8";
 const APP_CACHE = `${VERSION}-app`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 const APP_SHELL = ["/", "/dashboard", "/manifest.webmanifest"];
