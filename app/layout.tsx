@@ -25,7 +25,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "JobTrack — Job Application Tracker",
   description: "Track your job applications in one place.",
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.webmanifest?v=2",
 };
 
 export async function generateViewport(): Promise<Viewport> {
